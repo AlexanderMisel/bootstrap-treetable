@@ -6,6 +6,9 @@
 用法跟bootstrap-table差不多，这里就不写了，当然也可以参考guns项目，ruoyi项目后边应该可以参考
 
 #### DEMO 1
+
+```
+
 <table id="demo"></table>
 var treeTable = $('#demo').bootstrapTreeTable({
     columns: [{
@@ -42,8 +45,10 @@ var treeTable = $('#demo').bootstrapTreeTable({
         "icon": "#"
     }]
 });
+```
 
 #### DEMO 2
+```
 <div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
   <button type="button" class="btn btn-default">新增</button>
   <button type="button" class="btn btn-default">编辑</button>
@@ -68,9 +73,10 @@ var treeTable = $('#demo').bootstrapTreeTable({
         }
     }]
 });
-    
+```
 #### 所有参数
 
+```
 rootCodeValue: null,            // 设置根节点code值----可指定根节点，默认为null,"",0,"0"
 id : "id",                      // 选取记录返回的值
 code : "id",                    // 用于设置父子关系
@@ -86,6 +92,9 @@ height: 0,                      // 表格高度
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 
+```
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
 
 #### 软件架构
 软件架构说明
