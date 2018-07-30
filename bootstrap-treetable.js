@@ -165,23 +165,23 @@
             if(options.height){
                 tbody.css("height",options.height);
             }
-	        if (options.url) {
-	            $.ajax({
-	                type : options.type,
-	                url : options.url,
-	                data : parms?parms:options.ajaxParams,
-	                dataType : "JSON",
-	                success : function(data, textStatus, jqXHR) {
-	                    target.renderTable(data);
-	                },
-	                error:function(xhr,textStatus){
-	                    var _errorMsg = '<tr><td colspan="'+options.columns.length+'"><div style="display: block;text-align: center;">'+xhr.responseText+'</div></td></tr>'
-	                    tbody.html(_errorMsg);
-	                },
-	            });
-	        } else {
-	            target.renderTable(options.data);
-	        }
+            if (options.url) {
+                $.ajax({
+                    type : options.type,
+                    url : options.url,
+                    data : parms?parms:options.ajaxParams,
+                    dataType : "JSON",
+                    success : function(data, textStatus, jqXHR) {
+                        target.renderTable(data);
+                    },
+                    error:function(xhr,textStatus){
+                        var _errorMsg = '<tr><td colspan="'+options.columns.length+'"><div style="display: block;text-align: center;">'+xhr.responseText+'</div></td></tr>'
+                        tbody.html(_errorMsg);
+                    },
+                });
+            } else {
+                target.renderTable(options.data);
+            }
         }
         // 加载完数据后渲染表格
         target.renderTable = function(data){
@@ -236,32 +236,35 @@
             });
             // 小图标点击事件--展开缩起
             target.find("tbody").find("tr").find(".treetable-expander").click(function(){
-                var _flag = $(this).hasClass(options.expanderExpandedClass);
-                var tr = $(this).parent().parent();
-                var row_id = tr.attr("id");
-                if(_flag){
-                    var _ls = target.find("tbody").find("tr[id^='"+row_id+"_']");//下所有
-                    if(_ls&&_ls.length>0){
-                        $.each(_ls, function(index, item) {
-                            $(item).css("display","none");
-                            var _icon = $(item).children().eq(options.expandColumn).find(".treetable-expander");
-                            if(_icon.hasClass(options.expanderExpandedClass)){
-                                _icon.removeClass(options.expanderExpandedClass)
-                                _icon.addClass(options.expanderCollapsedClass)
-                            }
-                        });
+                var _isExpanded = $(this).hasClass(options.expanderExpandedClass);
+                var _isCollapsed = $(this).hasClass(options.expanderCollapsedClass);
+                if(_isExpanded||_isCollapsed){
+                    var tr = $(this).parent().parent();
+                    var row_id = tr.attr("id");
+                    if(_isExpanded){
+                        var _ls = target.find("tbody").find("tr[id^='"+row_id+"_']");//下所有
+                        if(_ls&&_ls.length>0){
+                            $.each(_ls, function(index, item) {
+                                $(item).css("display","none");
+                                var _icon = $(item).children().eq(options.expandColumn).find(".treetable-expander");
+                                if(_icon.hasClass(options.expanderExpandedClass)){
+                                    _icon.removeClass(options.expanderExpandedClass)
+                                    _icon.addClass(options.expanderCollapsedClass)
+                                }
+                            });
+                        }
+                        $(this).removeClass(options.expanderExpandedClass)
+                        $(this).addClass(options.expanderCollapsedClass)
+                    }else{
+                        var _ls = target.find("tbody").find("tr[pid='"+row_id+"']");//下一级
+                        if(_ls&&_ls.length>0){
+                            $.each(_ls, function(index, item) {
+                                $(item).css("display","table");
+                            });
+                        }
+                        $(this).removeClass(options.expanderCollapsedClass)
+                        $(this).addClass(options.expanderExpandedClass)
                     }
-                    $(this).removeClass(options.expanderExpandedClass)
-                    $(this).addClass(options.expanderCollapsedClass)
-                }else{
-                    var _ls = target.find("tbody").find("tr[pid='"+row_id+"']");//下一级
-                    if(_ls&&_ls.length>0){
-                        $.each(_ls, function(index, item) {
-                            $(item).css("display","table");
-                        });
-                    }
-                    $(this).removeClass(options.expanderCollapsedClass)
-                    $(this).addClass(options.expanderExpandedClass)
                 }
             });
         }
