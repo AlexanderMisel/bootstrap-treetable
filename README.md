@@ -109,7 +109,7 @@ $('#demo').bootstrapTreeTable('refresh',params);
 ```
 //刷新
 var selected = $('#demo').bootstrapTreeTable('getSelections');
-//为了兼容bootstrap-table的写法，统一返回数组，这里返回了表格显示列的数据
+//为了兼容bootstrap-table的写法，统一返回数组，这里返回了指定的id及表格显示列的数据
 ```
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
