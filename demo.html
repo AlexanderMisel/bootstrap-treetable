@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="./bootstrap-treetable.css" type="text/css" />
 </head>
 <body>
+<div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
+  <button type="button" class="btn btn-default">新增</button>
+  <button type="button" class="btn btn-default">编辑</button>
+  <button type="button" class="btn btn-default">删除</button>
+</div>
 <table id="demo"></table>
 <!-- 全局js -->
 <script type="text/javascript" src="./libs/jquery.min.js"></script>
@@ -34,6 +39,7 @@
                     expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 **/
                 var treeTable = $('#demo').bootstrapTreeTable({
+                    toolbar: "#demo-toolbar",//顶部工具条
                     columns: [{
                         title: '菜单名称',
                         field: 'menuName',

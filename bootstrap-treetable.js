@@ -18,7 +18,7 @@
         var hasSelectItem = false;
         var target = $(this);
         // 在外层包装一下div，样式用的bootstrap-table的
-        var _main_div = $("<div class='bootstrap-tree-table fixed-table-container'></div>");
+        var _main_div = $("<div class='bootstrap-tree-table'></div>");
         target.before(_main_div);
         _main_div.append(target);
         target.addClass("table table-hover treetable-table");
@@ -30,10 +30,8 @@
         }
         // 工具条在外层包装一下div，样式用的bootstrap-table的
         if(options.toolbar){
-            var _tool_div = $("<div class='fixed-table-toolbar'></div>");
-            var _tool_left_div = $("<div class='bs-bars pull-left'></div>");
-            _tool_left_div.append($(options.toolbar));
-            _tool_div.append(_tool_left_div);
+            var _tool_div = $("<div class='treetable-bars pull-left'></div>");
+            _tool_div.append($(options.toolbar));
             _main_div.before(_tool_div);
         }
         // 格式化数据，优化性能
