@@ -117,3 +117,4 @@ var selected = $('#demo').bootstrapTreeTable('getSelections');
 ```
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/153142_6dc6ff87_405607.png "demo2.png")
