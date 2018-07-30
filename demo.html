@@ -39,8 +39,12 @@
                     expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 **/
                 var treeTable = $('#demo').bootstrapTreeTable({
-                    toolbar: "#demo-toolbar",//顶部工具条
+                    toolbar: "#demo-toolbar",    //顶部工具条
+                    expandColumn : 1,            // 在哪一列上面显示展开按钮
                     columns: [{
+                        field: 'selectItem', 
+                        checkbox: true
+                     },{
                         title: '菜单名称',
                         field: 'menuName',
                         width: '20%',
