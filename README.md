@@ -3,7 +3,7 @@
 #### 项目介绍
 这个东西最初出现在guns项目，但在实际应用过程中之前的方案数据量过大会有性能问题，之后抛掉了jquery.treegrid重新实现了相关功能。
 
-用法跟bootstrap-table差不多，这里就不写了，当然也可以参考guns项目，ruoyi项目后边应该可以参考
+用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目，ruoyi项目后边应该可以参考
 
 #### DEMO 1
 
@@ -49,7 +49,7 @@ var treeTable = $('#demo').bootstrapTreeTable({
 
 #### DEMO 2
 ```
-<div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
+<div id="demo-toolbar" class="btn-group" role="group">
   <button type="button" class="btn btn-default">新增</button>
   <button type="button" class="btn btn-default">编辑</button>
   <button type="button" class="btn btn-default">删除</button>
@@ -91,7 +91,6 @@ toolbar: null,                  // 顶部工具条
 height: 0,                      // 表格高度
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
-
 ```
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
