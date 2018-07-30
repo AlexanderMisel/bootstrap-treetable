@@ -1,7 +1,7 @@
 # bootstrap-treetable
 
 #### 项目介绍
-这个东西最初出现在guns项目，但在实际应用过程中之前的方案数据量过大会有性能问题，之后抛掉了jquery.treegrid重新实现了相关功能。
+这个东西最初出现在guns项目，基于jquery.treegrid.js实现的树。但在实际应用过程中这个方案数据量过大会有性能问题，遂抛掉了jquery.treegrid重新实现了相关功能。
 
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
