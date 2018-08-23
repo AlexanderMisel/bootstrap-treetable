@@ -12,10 +12,8 @@
 </head>
 <body>
 <div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
-  <button type="button" class="btn btn-default">新增</button>
-  <button type="button" class="btn btn-default">编辑</button>
-  <button type="button" class="btn btn-default">删除</button>
-  <button id="tbtn" type="button" class="btn btn-default">测试选中</button>
+  <button id="addBtn" type="button" class="btn btn-default">向表格添加数据</button>
+  <button id="selectBtn" type="button" class="btn btn-default">测试选中</button>
 </div>
 <table id="demo"></table>
 <!-- 全局js -->
@@ -1157,7 +1155,17 @@
                         "visible": 0,
                         "perms": "monitor:logininfor:remove",
                         "icon": "#"
-                    }, {
+                    }]
+                });
+                $("#selectBtn").click(function(){
+                    var selecteds = $('#demo').bootstrapTreeTable('getSelections');
+                    $.each(selecteds,function(_i,_item){ 
+                        console.log(_item);
+                    }); 
+                    alert("看console");
+                })
+                $("#addBtn").click(function(){
+                    var data = [{
                         "searchValue": null,
                         "createBy": "admin",
                         "createTime": "2018-03-16 11:33:00",
@@ -1337,14 +1345,8 @@
                         "visible": 0,
                         "perms": "tool:gen:code",
                         "icon": "#"
-                    }]
-                });
-                $("#tbtn").click(function(){
-                    var selecteds = $('#demo').bootstrapTreeTable('getSelections');
-                    $.each(selecteds,function(_i,_item){ 
-                        console.log(_item);
-                    }); 
-                    alert("看console");
+                    }];
+                    $('#demo').bootstrapTreeTable('appendData',data);
                 })
 </script>
 </body>

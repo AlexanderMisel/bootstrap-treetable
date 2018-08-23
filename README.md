@@ -5,6 +5,13 @@
 
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
+
+### 2018-08-23 更新内容
+
+> * 优化收缩子行显示，收缩后再展开保留子行的展开记录
+> * 优化getSelections方法，getSelections返回的数据不再是显示列的数据，而是直接返回原数据
+> * 新增appendData方法，为啥是appendData而不是appendChildNode？因为可以添加任意数据到表格（数据格式与原数据一样），目前还是刷新整个表格⊙﹏⊙
+
 #### DEMO 1
 
 ```
@@ -111,9 +118,34 @@ $('#demo').bootstrapTreeTable('refresh',params);
 ```
 
 ```
-//刷新
+//获取所选数据
 var selected = $('#demo').bootstrapTreeTable('getSelections');
-//为了兼容bootstrap-table的写法，统一返回数组，这里返回了指定的id及表格显示列的数据
+//为了兼容bootstrap-table的写法，统一返回数组
+```
+
+```
+//任意添加数据到表格（数据格式与原数据一样）
+//注：目前还是刷新整个表格⊙﹏⊙
+var data = [{
+        "searchValue": null,
+        "createBy": "admin",
+        "createTime": "2018-03-16 11:33:00",
+        "updateBy": null,
+        "updateTime": null,
+        "remark": null,
+        "params": null,
+        "id": 1038,
+        "menuName": "在线查询",
+        "parentName": null,
+        "parentId": 109,
+        "orderNum": "1",
+        "url": "#",
+        "menuType": "F",
+        "visible": 0,
+        "perms": "monitor:online:list",
+        "icon": "#"
+    },{...}];
+$('#demo').bootstrapTreeTable('appendData',data);
 ```
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
