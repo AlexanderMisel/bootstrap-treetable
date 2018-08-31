@@ -6,6 +6,11 @@
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
 
+### 2018-08-31 更新内容
+
+> * 优化appendData方法，不再刷新整个表格，如果添加数据id重复，将以最后一条为准
+> * 由于选择数据问题得已解决，因此去掉 code 设置、 parentCode 变更为 parentId、rootCodeValue 变更为 rootIdValue，简化配置
+
 ### 2018-08-23 更新内容
 
 > * 优化收缩子行显示，收缩后再展开保留子行的展开记录
@@ -88,10 +93,9 @@ var treeTable = $('#demo').bootstrapTreeTable({
 #### 所有参数
 
 ```
-rootCodeValue: null,            // 设置根节点code值----可指定根节点，默认为null,"",0,"0"
-id : "id",                      // 选取记录返回的值
-code : "id",                    // 用于设置父子关系
-parentCode : "parentId",        // 用于设置父子关系
+rootIdValue: null,            // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
+id : "id",                      // 选取记录返回的值,用于设置父子关系
+parentId : "parentId",        // 用于设置父子关系
 type: 'get',                    // 请求方式（*）
 url: "./data.json",             // 请求后台的URL（*）
 ajaxParams : {},                // 请求数据的ajax的data属性
@@ -125,7 +129,7 @@ var selected = $('#demo').bootstrapTreeTable('getSelections');
 
 ```
 //任意添加数据到表格（数据格式与原数据一样）
-//注：目前还是刷新整个表格⊙﹏⊙
+//注：重复数据将以最后一条为准
 var data = [{
         "searchValue": null,
         "createBy": "admin",

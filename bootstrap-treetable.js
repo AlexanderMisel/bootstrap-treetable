@@ -8,7 +8,7 @@
 
     $.fn.bootstrapTreeTable = function(options, param) {
         var target = $(this).data('bootstrap.tree.table');
-        target = target?target:$(this);
+        target = target ? target : $(this);
         // 如果是调用方法
         if (typeof options == 'string') {
             return $.fn.bootstrapTreeTable.methods[options](target, param);
@@ -17,8 +17,8 @@
         options = $.extend({}, $.fn.bootstrapTreeTable.defaults, options || {});
         // 是否有radio或checkbox
         var hasSelectItem = false;
-        target.data_list = null;//用于存放格式化后的数据-按父分组
-        target.data_obj = null;//用于存放格式化后的数据-按id存对象
+        target.data_list = null; //用于存放格式化后的数据-按父分组
+        target.data_obj = null; //用于存放格式化后的数据-按id存对象
         // 在外层包装一下div，样式用的bootstrap-table的
         var _main_div = $("<div class='bootstrap-tree-table'></div>");
         target.before(_main_div);
@@ -31,34 +31,40 @@
             target.addClass('table-bordered');
         }
         // 工具条在外层包装一下div，样式用的bootstrap-table的
-        if(options.toolbar){
+        if (options.toolbar) {
             var _tool_div = $("<div class='treetable-bars pull-left'></div>");
             _tool_div.append($(options.toolbar));
             _main_div.before(_tool_div);
         }
         // 格式化数据，优化性能
-        var formatData=function(data){
-            var _root = options.rootCodeValue?options.rootCodeValue:null
+        var formatData = function(data) {
+            var _root = options.rootIdValue ? options.rootIdValue : null
             $.each(data, function(index, item) {
                 // 添加一个默认属性，用来判断当前节点有没有被显示
                 item.isShow = false;
                 // 这里兼容几种常见Root节点写法
                 // 默认的几种判断
-                var _defaultRootFlag = item[options.parentCode] == '0'
-                    || item[options.parentCode] == 0
-                    || item[options.parentCode] == null
-                    || item[options.parentCode] == '';
-                if (!item[options.parentCode] || (_root?(item[options.parentCode] == options.rootCodeValue):_defaultRootFlag)){
-                    if(!target.data_list["_root_"]){target.data_list["_root_"]=[];}
-                    target.data_list["_root_"].push(item);
-                }else{
-                    if(!target.data_list["_n_"+item[options.parentCode]]){target.data_list["_n_"+item[options.parentCode]]=[];}
-                    target.data_list["_n_"+item[options.parentCode]].push(item);
+                var _defaultRootFlag = item[options.parentId] == '0' ||
+                    item[options.parentId] == 0 ||
+                    item[options.parentId] == null ||
+                    item[options.parentId] == '';
+                if (!item[options.parentId] || (_root ? (item[options.parentId] == options.rootIdValue) : _defaultRootFlag)) {
+                    if (!target.data_list["_root_"]) {
+                        target.data_list["_root_"] = [];
+                    }
+                    if (!target.data_obj["id_" + item[options.id]]) {
+                        target.data_list["_root_"].push(item);
+                    }
+                } else {
+                    if (!target.data_list["_n_" + item[options.parentId]]) {
+                        target.data_list["_n_" + item[options.parentId]] = [];
+                    }
+                    if (!target.data_obj["id_" + item[options.id]]) {
+                        target.data_list["_n_" + item[options.parentId]].push(item);
+                    }
                 }
-                target.data_obj["id_"+item[options.id]]=item;
-                target.data_obj["code_"+item[options.code]]=target.data_obj["id_"+item[options.id]];
+                target.data_obj["id_" + item[options.id]] = item;
             });
-            data=null;//回收
         }
         // 得到根节点
         var getRootNodes = function() {
@@ -66,68 +72,71 @@
         };
         // 递归获取子节点并且设置子节点
         var handleNode = function(parentNode, lv, row_id, p_id, tbody) {
-            var _ls = target.data_list["_n_"+parentNode[options.code]];
-            var tr = renderRow(parentNode,_ls?true:false,lv,row_id,p_id);
+            var _ls = target.data_list["_n_" + parentNode[options.id]];
+            var tr = renderRow(parentNode, _ls ? true : false, lv, row_id, p_id);
             tbody.append(tr);
-            if(_ls){
+            if (_ls) {
                 $.each(_ls, function(i, item) {
-                    var _row_id = row_id+"_"+i
-                    handleNode(item, (lv + 1), _row_id,row_id, tbody)
+                    var _row_id = row_id + "_" + i
+                    handleNode(item, (lv + 1), _row_id, row_id, tbody)
                 });
             }
         };
         // 绘制行
-        var renderRow = function(item,isP,lv,row_id,p_id){
+        var renderRow = function(item, isP, lv, row_id, p_id) {
             // 标记已显示
             item.isShow = true;
-            var tr = $('<tr id="'+row_id+'" pid="'+p_id+'"></tr>');
+            item.row_id = row_id;
+            item.p_id = p_id;
+            item.lv = lv;
+            var tr = $('<tr id="' + row_id + '" pid="' + p_id + '"></tr>');
             var _icon = options.expanderCollapsedClass;
-            if(options.expandAll){
-                tr.css("display","table");
+            if (options.expandAll) {
+                tr.css("display", "table");
                 _icon = options.expanderExpandedClass;
-            }else if(lv==1){
-                tr.css("display","table");
-                _icon=(options.expandFirst)?options.expanderExpandedClass:options.expanderCollapsedClass;
-            }else if(lv==2){
-                if(options.expandFirst){
-                    tr.css("display","table");
-                }else{
-                    tr.css("display","none");
+            } else if (lv == 1) {
+                tr.css("display", "table");
+                _icon = (options.expandFirst) ? options.expanderExpandedClass : options.expanderCollapsedClass;
+            } else if (lv == 2) {
+                if (options.expandFirst) {
+                    tr.css("display", "table");
+                } else {
+                    tr.css("display", "none");
                 }
-                _icon=options.expanderCollapsedClass;
-            }else{
-                tr.css("display","none");
+                _icon = options.expanderCollapsedClass;
+            } else {
+                tr.css("display", "none");
                 _icon = options.expanderCollapsedClass;
             }
             $.each(options.columns, function(index, column) {
                 // 判断有没有选择列
-                if(column.field=='selectItem'){
+                if (column.field == 'selectItem') {
                     hasSelectItem = true;
                     var td = $('<td style="text-align:center;width:36px"></td>');
-                    if(column.radio){
-                        var _ipt = $('<input name="select_item" type="radio" value="'+item[options.id]+'"></input>');
+                    if (column.radio) {
+                        var _ipt = $('<input name="select_item" type="radio" value="' + item[options.id] + '"></input>');
                         td.append(_ipt);
-                    } 
-                    if(column.checkbox){
-                        var _ipt = $('<input name="select_item" type="checkbox" value="'+item[options.id]+'"></input>');
+                    }
+                    if (column.checkbox) {
+                        var _ipt = $('<input name="select_item" type="checkbox" value="' + item[options.id] + '"></input>');
                         td.append(_ipt);
-                    } 
+                    }
                     tr.append(td);
-                }else{
-                    var td = $('<td title="'+item[column.field]+'" name="'+column.field+'" style="'+((column.width)?('width:'+column.width):'')+'"></td>');
+                } else {
+                    var td = $('<td title="' + item[column.field] + '" name="' + column.field + '" style="' + ((column.width) ? ('width:' + column.width) : '') + '"></td>');
                     // 增加formatter渲染
                     if (column.formatter) {
                         td.html(column.formatter.call(this, item[column.field], item, index));
                     } else {
                         td.text(item[column.field]);
                     }
-                    if(options.expandColumn==index){
-                        if(!isP){
+                    if (options.expandColumn == index) {
+                        if (!isP) {
                             td.prepend('<span class="treetable-expander"></span>')
-                        }else{
-                            td.prepend('<span class="treetable-expander '+_icon+'"></span>')
+                        } else {
+                            td.prepend('<span class="treetable-expander ' + _icon + '"></span>')
                         }
-                        for (var int = 0; int < (lv-1); int++) {
+                        for (var int = 0; int < (lv - 1); int++) {
                             td.prepend('<span class="treetable-indent"></span>')
                         }
                     }
@@ -137,14 +146,14 @@
             return tr;
         }
         // 加载完数据后渲染表格
-        var renderTable = function(data){
+        var renderTable = function(data) {
 
             var tbody = target.find("tbody");
             var thead = target.find("thead");
             // 加载完数据先清空
             tbody.html("");
-            if(!data||data.length<=0){
-                var _empty = '<tr><td colspan="'+options.columns.length+'"><div style="display: block;text-align: center;">没有找到匹配的记录</div></td></tr>'
+            if (!data || data.length <= 0) {
+                var _empty = '<tr><td colspan="' + options.columns.length + '"><div style="display: block;text-align: center;">没有找到匹配的记录</div></td></tr>'
                 tbody.html(_empty);
                 return;
             }
@@ -152,67 +161,74 @@
             formatData(data);
             // 开始绘制
             var rootNode = getRootNodes();
-            if(rootNode){
+            if (rootNode) {
                 $.each(rootNode, function(i, item) {
-                    var _row_id = "row_id_"+i
-                    handleNode(item, 1, _row_id,"row_root", tbody);
+                    var _row_id = "row_id_" + i
+                    handleNode(item, 1, _row_id, "row_root", tbody);
                 });
             }
             // 下边的操作主要是为了查询时让一些没有根节点的节点显示
             $.each(data, function(i, item) {
-                if(!item.isShow){
-                    var tr = renderRow(item,false,1);
+                if (!item.isShow) {
+                    var tr = renderRow(item, false, 1, "", "");
                     tbody.append(tr);
                 }
             });
             target.append(tbody);
             //动态设置表头宽度
             thead.css("width", tbody.children(":first").css("width"));
-            // 行点击选中事件
-            target.find("tbody").find("tr").click(function(){
-                if(hasSelectItem){
+            registerExpanderEvent();
+            registerRowClickEvent();
+        }
+        // 注册行点击选中事件
+        var registerRowClickEvent = function() {
+            target.find("tbody").find("tr").unbind();
+            target.find("tbody").find("tr").click(function() {
+                if (hasSelectItem) {
                     var _ipt = $(this).find("input[name='select_item']");
-                    if(_ipt.attr("type")=="radio"){
-                        _ipt.prop('checked',true);
+                    if (_ipt.attr("type") == "radio") {
+                        _ipt.prop('checked', true);
                         target.find("tbody").find("tr").removeClass("treetable-selected");
                         $(this).addClass("treetable-selected");
-                    }else{
-                        if(_ipt.prop('checked')){
-                            _ipt.prop('checked',false);
+                    } else {
+                        if (_ipt.prop('checked')) {
+                            _ipt.prop('checked', false);
                             $(this).removeClass("treetable-selected");
-                        }else{
-                            _ipt.prop('checked',true);
+                        } else {
+                            _ipt.prop('checked', true);
                             $(this).addClass("treetable-selected");
                         }
                     }
                 }
             });
-            // 小图标点击事件--展开缩起
-            target.find("tbody").find("tr").find(".treetable-expander").click(function(){
+        }
+        // 注册小图标点击事件--展开缩起
+        var registerExpanderEvent = function() {
+            target.find("tbody").find("tr").find(".treetable-expander").unbind();
+            target.find("tbody").find("tr").find(".treetable-expander").click(function() {
                 var _isExpanded = $(this).hasClass(options.expanderExpandedClass);
                 var _isCollapsed = $(this).hasClass(options.expanderCollapsedClass);
-                if(_isExpanded||_isCollapsed){
+                if (_isExpanded || _isCollapsed) {
                     var tr = $(this).parent().parent();
                     var row_id = tr.attr("id");
-                    if(_isExpanded){
+                    var _ls = target.find("tbody").find("tr[id^='" + row_id + "_']"); //下所有
+                    if (_isExpanded) {
                         $(this).removeClass(options.expanderExpandedClass);
                         $(this).addClass(options.expanderCollapsedClass);
-                        var _ls = target.find("tbody").find("tr[id^='"+row_id+"_']");//下所有
-                        if(_ls&&_ls.length>0){
+                        if (_ls && _ls.length > 0) {
                             $.each(_ls, function(index, item) {
-                                $(item).css("display","none");
+                                $(item).css("display", "none");
                             });
                         }
-                    }else{
+                    } else {
                         $(this).removeClass(options.expanderCollapsedClass);
                         $(this).addClass(options.expanderExpandedClass);
-                        var _ls = target.find("tbody").find("tr[id^='"+row_id+"_']");//下所有
-                        if(_ls&&_ls.length>0){
+                        if (_ls && _ls.length > 0) {
                             $.each(_ls, function(index, item) {
                                 // 父icon
-                                var _p_icon = $("#"+$(item).attr("pid")).children().eq(options.expandColumn).find(".treetable-expander");
-                                if(_p_icon.hasClass(options.expanderExpandedClass)){
-                                    $(item).css("display","table");
+                                var _p_icon = $("#" + $(item).attr("pid")).children().eq(options.expandColumn).find(".treetable-expander");
+                                if (_p_icon.hasClass(options.expanderExpandedClass)) {
+                                    $(item).css("display", "table");
                                 }
                             });
                         }
@@ -221,7 +237,7 @@
             });
         }
         // 加载数据前
-        target.load = function(parms){
+        target.load = function(parms) {
             // 加载数据前先清空
             target.data_list = {};
             target.data_obj = {};
@@ -232,11 +248,11 @@
             $.each(options.columns, function(i, item) {
                 var th = null;
                 // 判断有没有选择列
-                if(i==0&&item.field=='selectItem'){
+                if (i == 0 && item.field == 'selectItem') {
                     hasSelectItem = true;
                     th = $('<th style="width:36px"></th>');
-                }else{
-                    th = $('<th style="'+((item.width)?('width:'+item.width):'')+'"></th>');
+                } else {
+                    th = $('<th style="' + ((item.width) ? ('width:' + item.width) : '') + '"></th>');
                 }
                 th.text(item.title);
                 thr.append(th);
@@ -248,23 +264,23 @@
             var tbody = $('<tbody class="treetable-tbody"></tbody>');
             target.append(tbody);
             // 添加加载loading
-            var _loading = '<tr><td colspan="'+options.columns.length+'"><div style="display: block;text-align: center;">正在努力地加载数据中，请稍候……</div></td></tr>'
+            var _loading = '<tr><td colspan="' + options.columns.length + '"><div style="display: block;text-align: center;">正在努力地加载数据中，请稍候……</div></td></tr>'
             tbody.html(_loading);
             // 默认高度
-            if(options.height){
-                tbody.css("height",options.height);
+            if (options.height) {
+                tbody.css("height", options.height);
             }
             if (options.url) {
                 $.ajax({
-                    type : options.type,
-                    url : options.url,
-                    data : parms?parms:options.ajaxParams,
-                    dataType : "JSON",
-                    success : function(data, textStatus, jqXHR) {
+                    type: options.type,
+                    url: options.url,
+                    data: parms ? parms : options.ajaxParams,
+                    dataType: "JSON",
+                    success: function(data, textStatus, jqXHR) {
                         renderTable(data);
                     },
-                    error:function(xhr,textStatus){
-                        var _errorMsg = '<tr><td colspan="'+options.columns.length+'"><div style="display: block;text-align: center;">'+xhr.responseText+'</div></td></tr>'
+                    error: function(xhr, textStatus) {
+                        var _errorMsg = '<tr><td colspan="' + options.columns.length + '"><div style="display: block;text-align: center;">' + xhr.responseText + '</div></td></tr>'
                         tbody.html(_errorMsg);
                     },
                 });
@@ -273,9 +289,72 @@
             }
         }
         // 添加数据刷新表格
-        target.appendData = function(data){
-            // 格式化数据
-            renderTable(data);
+        target.appendData = function(data) {
+            // 下边的操作主要是为了查询时让一些没有根节点的节点显示
+            $.each(data, function(i, item) {
+                var _data = target.data_obj["id_" + item[options.id]];
+                var _p_data = target.data_obj["id_" + item[options.parentId]];
+                var _c_list = target.data_list["_n_" + item[options.parentId]];
+                var row_id = ""; //行id
+                var p_id = ""; //父行id
+                var _lv = 1; //如果没有父就是1默认显示
+                var tr; //要添加行的对象
+                if (_data && _data.row_id && _data.row_id != "") {
+                    row_id = _data.row_id; // 如果已经存在了，就直接引用原来的
+                }
+                if (_p_data) {
+                    p_id = _p_data.row_id;
+                    if (row_id == "") {
+                        var _tmp = 0
+                        if (_c_list && _c_list.length > 0) {
+                            _tmp = _c_list.length;
+                        }
+                        row_id = _p_data.row_id + "_" + _tmp;
+                    }
+                    _lv = _p_data.lv + 1; //如果有父
+                    // 绘制行
+                    tr = renderRow(item, false, _lv, row_id, p_id);
+
+                    var _p_icon = $("#" + _p_data.row_id).children().eq(options.expandColumn).find(".treetable-expander");
+                    var _isExpanded = _p_icon.hasClass(options.expanderExpandedClass);
+                    var _isCollapsed = _p_icon.hasClass(options.expanderCollapsedClass);
+                    // 父节点有没有展开收缩按钮
+                    if (_isExpanded || _isCollapsed) {
+                        // 父节点展开状态显示新加行
+                        if (_isExpanded) {
+                            tr.css("display", "table");
+                        }
+                    } else {
+                        // 父节点没有展开收缩按钮则添加
+                        _p_icon.addClass(options.expanderCollapsedClass);
+                    }
+
+                    if (_data) {
+                        $("#" + _data.row_id).before(tr);
+                        $("#" + _data.row_id).remove();
+                    } else {
+                        // 计算父的同级下一行
+                        var _tmp_ls = _p_data.row_id.split("_");
+                        var _p_next = _p_data.row_id.substring(0, _p_data.row_id.length - 1) + (parseInt(_tmp_ls[_tmp_ls.length - 1]) + 1);
+                        // 画上
+                        $("#" + _p_next).before(tr);
+                    }
+                } else {
+                    tr = renderRow(item, false, _lv, row_id, p_id);
+                    if (_data) {
+                        $("#" + _data.row_id).before(tr);
+                        $("#" + _data.row_id).remove();
+                    } else {
+                        // 画上
+                        var tbody = target.find("tbody");
+                        tbody.append(tr);
+                    }
+                }
+                item.isShow = true;
+                formatData([item]);
+            });
+            registerExpanderEvent();
+            registerRowClickEvent();
         }
         // 加载数据
         target.load();
@@ -286,58 +365,57 @@
     // 组件方法封装........
     $.fn.bootstrapTreeTable.methods = {
         // 为了兼容bootstrap-table的写法，统一返回数组，这里返回了表格显示列的数据
-        getSelections : function(target, data) {
+        getSelections: function(target, data) {
             // 所有被选中的记录input
             var _ipt = target.find("tbody").find("tr").find("input[name='select_item']:checked");
-            var chk_value =[];
+            var chk_value = [];
             // 如果是radio
-            if(_ipt.attr("type")=="radio"){
-                var _data = target.data_obj["id_"+_ipt.val()];
+            if (_ipt.attr("type") == "radio") {
+                var _data = target.data_obj["id_" + _ipt.val()];
                 chk_value.push(_data);
-            }else{
-                _ipt.each(function(_i,_item){
-                    var _data = target.data_obj["id_"+$(_item).val()];
+            } else {
+                _ipt.each(function(_i, _item) {
+                    var _data = target.data_obj["id_" + $(_item).val()];
                     chk_value.push(_data);
                 });
             }
             return chk_value;
         },
         // 刷新记录
-        refresh : function(target, parms) {
-            if(parms){
+        refresh: function(target, parms) {
+            if (parms) {
                 target.load(parms);
-            }else{
+            } else {
                 target.load();
             }
         },
         // 添加数据到表格
-        appendData : function(target, data) {
-            if(data){
+        appendData: function(target, data) {
+            if (data) {
                 target.appendData(data);
             }
         }
-    // 组件的其他方法也可以进行类似封装........
+        // 组件的其他方法也可以进行类似封装........
     };
 
     $.fn.bootstrapTreeTable.defaults = {
-        id : 'id',// 选取记录返回的值
-        code : 'id',// 用于设置父子关系
-        parentCode : 'parentId',// 用于设置父子关系
-        rootCodeValue: null,//设置根节点code值----可指定根节点，默认为null,"",0,"0"
-        data : null, // 构造table的数据集合
-        type : "GET", // 请求数据的ajax类型
-        url : null, // 请求数据的ajax的url
-        ajaxParams : {}, // 请求数据的ajax的data属性
-        expandColumn : 0,// 在哪一列上面显示展开按钮
-        expandAll : false, // 是否全部展开
-        expandFirst : true, // 是否默认第一级展开--expandAll为false时生效
-        striped : false, // 是否各行渐变色
-        bordered : true,               // 是否显示边框
-        columns : [],
-        toolbar: null,//顶部工具条
+        id: 'id', // 选取记录返回的值,用于设置父子关系
+        parentId: 'parentId', // 用于设置父子关系
+        rootIdValue: null, //设置根节点id值----可指定根节点，默认为null,"",0,"0"
+        data: null, // 构造table的数据集合
+        type: "GET", // 请求数据的ajax类型
+        url: null, // 请求数据的ajax的url
+        ajaxParams: {}, // 请求数据的ajax的data属性
+        expandColumn: 0, // 在哪一列上面显示展开按钮
+        expandAll: false, // 是否全部展开
+        expandFirst: true, // 是否默认第一级展开--expandAll为false时生效
+        striped: false, // 是否各行渐变色
+        bordered: true, // 是否显示边框
+        columns: [],
+        toolbar: null, //顶部工具条
         height: 0,
-        expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
-        expanderCollapsedClass : 'glyphicon glyphicon-chevron-right'// 缩起的按钮的图标
+        expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
+        expanderCollapsedClass: 'glyphicon glyphicon-chevron-right' // 缩起的按钮的图标
 
     };
 })(jQuery);
