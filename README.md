@@ -6,6 +6,10 @@
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
 
+### 2018-09-08 更新内容
+
+> * 列参数增加align、valign、visible三项
+
 ### 2018-08-31 更新内容
 
 > * 优化appendData方法，不再刷新整个表格，如果添加数据id重复，将以最后一条为准
@@ -74,7 +78,7 @@ var treeTable = $('#demo').bootstrapTreeTable({
     toolbar: "#demo-toolbar",      //顶部工具条
     expandColumn : 1,              // 在哪一列上面显示展开按钮
     columns: [{
-        field: 'selectItem', 
+        field: 'selectItem',
         checkbox: true
      },{
         title: '菜单名称',
@@ -90,7 +94,7 @@ var treeTable = $('#demo').bootstrapTreeTable({
     }]
 });
 ```
-#### 所有参数
+#### 所有表格参数
 
 ```
 rootIdValue: null,            // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
@@ -106,6 +110,23 @@ toolbar: null,                  // 顶部工具条
 height: 0,                      // 表格高度
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
+```
+
+#### 所有列参数
+
+```
+
+title      String  undefined   表头要显示的文本
+field      String  undefined   要显示数据的字段名称，可以理解为json对象里的key
+checkbox   Boolean false   设置为True的时候 则显示一列checkbox组件，该列的宽度为固定宽度
+radio      Boolean false   设置为True的时候 则显示一列radio组件，该列的宽度为固定宽度
+align      String  undefined   设置单元格数据的左右对齐方式， 可选择的值有：’left’, ‘right’, ‘center’
+valign     String  undefined   设置单元格数据的上下对齐方式， 可选择的值有：’top’, ‘middle’, ‘bottom’
+width      Number {Pixels or Percentage}   undefined    设置单元格列宽度。可以使用’%’百分比的方式，也可以设置要显示的像素值
+visible    Boolean true    显示或隐藏该列， 默认显示， False为隐藏
+formatter  Function    undefined   单元格格式化函数，有三个参数：value： 该列的字段值；row： 这一行的数据对象；index： 行号，第几行，从0开始计算
+例子：formatter : function(value, row, index){ return value + row.id + index; }
+
 ```
 #### 方法
 ```

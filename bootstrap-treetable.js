@@ -109,38 +109,49 @@
                 _icon = options.expanderCollapsedClass;
             }
             $.each(options.columns, function(index, column) {
-                // 判断有没有选择列
-                if (column.field == 'selectItem') {
-                    hasSelectItem = true;
-                    var td = $('<td style="text-align:center;width:36px"></td>');
-                    if (column.radio) {
-                        var _ipt = $('<input name="select_item" type="radio" value="' + item[options.id] + '"></input>');
-                        td.append(_ipt);
-                    }
-                    if (column.checkbox) {
-                        var _ipt = $('<input name="select_item" type="checkbox" value="' + item[options.id] + '"></input>');
-                        td.append(_ipt);
-                    }
-                    tr.append(td);
-                } else {
-                    var td = $('<td title="' + item[column.field] + '" name="' + column.field + '" style="' + ((column.width) ? ('width:' + column.width) : '') + '"></td>');
-                    // 增加formatter渲染
-                    if (column.formatter) {
-                        td.html(column.formatter.call(this, item[column.field], item, index));
+                if(typeof column.visible == "undefined"||column.visible==true){
+                    // 判断有没有选择列
+                    if (column.field == 'selectItem') {
+                        hasSelectItem = true;
+                        var td = $('<td style="text-align:center;width:36px"></td>');
+                        if (column.radio) {
+                            var _ipt = $('<input name="select_item" type="radio" value="' + item[options.id] + '"></input>');
+                            td.append(_ipt);
+                        }
+                        if (column.checkbox) {
+                            var _ipt = $('<input name="select_item" type="checkbox" value="' + item[options.id] + '"></input>');
+                            td.append(_ipt);
+                        }
+                        tr.append(td);
                     } else {
-                        td.text(item[column.field]);
-                    }
-                    if (options.expandColumn == index) {
-                        if (!isP) {
-                            td.prepend('<span class="treetable-expander"></span>')
+                        var td = $('<td title="' + item[column.field] + '" name="' + column.field + '"></td>');
+                        if(column.width){
+                            td.css("width",column.width);
+                        }
+                        if(column.align){
+                            td.css("text-align",column.align);
+                        }
+                        if(column.width){
+                            td.css("vertical-align",column.valign);
+                        }
+                        // 增加formatter渲染
+                        if (column.formatter) {
+                            td.html(column.formatter.call(this, item[column.field], item, index));
                         } else {
-                            td.prepend('<span class="treetable-expander ' + _icon + '"></span>')
+                            td.text(item[column.field]);
                         }
-                        for (var int = 0; int < (lv - 1); int++) {
-                            td.prepend('<span class="treetable-indent"></span>')
+                        if (options.expandColumn == index) {
+                            if (!isP) {
+                                td.prepend('<span class="treetable-expander"></span>')
+                            } else {
+                                td.prepend('<span class="treetable-expander ' + _icon + '"></span>')
+                            }
+                            for (var int = 0; int < (lv - 1); int++) {
+                                td.prepend('<span class="treetable-indent"></span>')
+                            }
                         }
+                        tr.append(td);
                     }
-                    tr.append(td);
                 }
             });
             return tr;
@@ -245,17 +256,19 @@
             target.html("");
             // 构造表头
             var thr = $('<tr></tr>');
-            $.each(options.columns, function(i, item) {
-                var th = null;
-                // 判断有没有选择列
-                if (i == 0 && item.field == 'selectItem') {
-                    hasSelectItem = true;
-                    th = $('<th style="width:36px"></th>');
-                } else {
-                    th = $('<th style="' + ((item.width) ? ('width:' + item.width) : '') + '"></th>');
+            $.each(options.columns, function(i, column) {
+                if(typeof column.visible == "undefined"||column.visible==true){
+                    var th = null;
+                    // 判断有没有选择列
+                    if (i == 0 && column.field == 'selectItem') {
+                        hasSelectItem = true;
+                        th = $('<th style="width:36px"></th>');
+                    } else {
+                        th = $('<th style="' + ((column.width) ? ('width:' + column.width) : '') + '"></th>');
+                    }
+                    th.text(column.title);
+                    thr.append(th);
                 }
-                th.text(item.title);
-                thr.append(th);
             });
             var thead = $('<thead class="treetable-thead"></thead>');
             thead.append(thr);

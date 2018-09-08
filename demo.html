@@ -19,7 +19,7 @@
 <!-- 全局js -->
 <script type="text/javascript" src="./libs/jquery.min.js"></script>
 <script type="text/javascript" src="./libs/bootstrap.min.js"></script>
-<script type="text/javascript" src="./bootstrap-treetable.min.js"></script>
+<script type="text/javascript" src="./bootstrap-treetable.js"></script>
 <script type="text/javascript">
 /**
                     rootIdValue: null,//设置根节点id值----可指定根节点，默认为null,"",0,"0"
@@ -58,19 +58,22 @@
                         field: 'orderNum',
                         title: '排序',
                         width: '10%',
-                        align: "center"
+                        align: "left",
+                        valign: "bottom",
+                        visible: true
                     },
                     {
                         field: 'url',
                         title: '请求地址',
                         width: '15%',
-                        align: "center"
+                        align: "left"
                     },
                     {
                         title: '类型',
                         field: 'menuType',
                         width: '10%',
                         align: "center",
+                        valign: "top",
                         formatter: function(value,item, index) {
                             if (item.menuType == 'M') {
                                 return '<span class="label label-success">目录</span>';
@@ -88,6 +91,7 @@
                         title: '可见',
                         width: '10%',
                         align: "center",
+                        visible: false,
                         formatter: function(value,row, index) {
                             return value;
                         }
