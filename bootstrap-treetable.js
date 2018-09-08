@@ -1,6 +1,6 @@
 /**
- * bootstrapTreeTable
- * v0.0.1
+ * bootstrap-treetable
+ * v1.0.2-beta
  * @author swifly
  */
 (function($) {
@@ -22,6 +22,12 @@
         // 在外层包装一下div，样式用的bootstrap-table的
         var _main_div = $("<div class='bootstrap-tree-table'></div>");
         target.before(_main_div);
+        // 工具条在外层包装一下div，样式用的bootstrap-table的
+        if (options.toolbar) {
+            var _tool_div = $("<div class='treetable-bars pull-left'></div>");
+            _tool_div.append($(options.toolbar));
+            _main_div.append(_tool_div);
+        }
         _main_div.append(target);
         target.addClass("table table-hover treetable-table");
         if (options.striped) {
@@ -29,12 +35,6 @@
         }
         if (options.bordered) {
             target.addClass('table-bordered');
-        }
-        // 工具条在外层包装一下div，样式用的bootstrap-table的
-        if (options.toolbar) {
-            var _tool_div = $("<div class='treetable-bars pull-left'></div>");
-            _tool_div.append($(options.toolbar));
-            _main_div.before(_tool_div);
         }
         // 格式化数据，优化性能
         var formatData = function(data) {
@@ -186,8 +186,6 @@
                 }
             });
             target.append(tbody);
-            //动态设置表头宽度
-            thead.css("width", tbody.children(":first").css("width"));
             registerExpanderEvent();
             registerRowClickEvent();
         }
