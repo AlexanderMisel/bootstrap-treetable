@@ -6,6 +6,13 @@
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
 
+### 2018-09-19 更新内容
+
+> * 新增toggleRow、expandRow、collapseRow、expandAll、collapseAll、showColumn、hideColumn方法
+> * 新增showTitle参数 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
+> * 新增showColumns参数 是否显示内容列下拉框
+> * 更新demo
+
 ### 2018-09-08 更新内容
 
 > * 列参数增加align、valign、visible三项
@@ -98,9 +105,9 @@ var treeTable = $('#demo').bootstrapTreeTable({
 #### 所有表格参数
 
 ```
-rootIdValue: null,            // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
+rootIdValue: null,              // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
 id : "id",                      // 选取记录返回的值,用于设置父子关系
-parentId : "parentId",        // 用于设置父子关系
+parentId : "parentId",          // 用于设置父子关系
 type: 'get',                    // 请求方式（*）
 url: "./data.json",             // 请求后台的URL（*）
 ajaxParams : {},                // 请求数据的ajax的data属性
@@ -109,6 +116,8 @@ expandAll : false,              // 是否全部展开
 expandFirst : true,             // 是否默认第一级展开--expandAll为false时生效
 toolbar: null,                  // 顶部工具条
 height: 0,                      // 表格高度
+showTitle: true,                // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
+showColumns: true,              // 是否显示内容列下拉框
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 ```

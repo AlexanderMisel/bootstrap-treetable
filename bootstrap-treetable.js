@@ -1,6 +1,6 @@
 /**
  * bootstrap-treetable
- * v1.0.2-beta
+ * v1.0.3-beta
  * @author swifly
  */
 (function($) {
@@ -15,26 +15,61 @@
         }
         // 如果是初始化组件
         options = $.extend({}, $.fn.bootstrapTreeTable.defaults, options || {});
-        // 是否有radio或checkbox
-        var hasSelectItem = false;
+        target.hasSelectItem = false;// 是否有radio或checkbox
         target.data_list = null; //用于存放格式化后的数据-按父分组
         target.data_obj = null; //用于存放格式化后的数据-按id存对象
-        // 在外层包装一下div，样式用的bootstrap-table的
-        var _main_div = $("<div class='bootstrap-tree-table'></div>");
-        target.before(_main_div);
-        // 工具条在外层包装一下div，样式用的bootstrap-table的
-        if (options.toolbar) {
-            var _tool_div = $("<div class='treetable-bars pull-left'></div>");
-            _tool_div.append($(options.toolbar));
-            _main_div.append(_tool_div);
-        }
-        _main_div.append(target);
-        target.addClass("table table-hover treetable-table");
-        if (options.striped) {
-            target.addClass('table-striped');
-        }
-        if (options.bordered) {
-            target.addClass('table-bordered');
+        target.hiddenColumns = []; //用于存放被隐藏列的field
+        var init = function() {
+            // 在外层包装一下div，样式用的bootstrap-table的
+            var _main_div = $("<div class='bootstrap-tree-table'></div>");
+            target.before(_main_div);
+            // 工具条在外层包装一下div，样式用的bootstrap-table的
+            if (options.toolbar) {
+                var _tool_div = $("<div class='treetable-bars pull-left'></div>");
+                _tool_div.append($(options.toolbar));
+                _main_div.append(_tool_div);
+            }
+            _main_div.append(target);
+            target.addClass("table table-hover treetable-table");
+            if (options.striped) {
+                target.addClass('table-striped');
+            }
+            if (options.bordered) {
+                target.addClass('table-bordered');
+            }
+            // 加载数据
+            target.load();
+            // 是否显示列选项
+            if (options.showColumns) {
+                var _columns_div = $('<div class="btn-group treetable-bars pull-right" title="列"><button type="button" aria-label="columns" class="btn btn-default btn-outline dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-list"></i> <span class="caret"></span></button></div>');
+                var _columns_ul = $('<ul class="dropdown-menu columns" role="menu"></ul>');
+                $.each(options.columns, function(i, column) {
+                    if (column.field != 'selectItem') {
+                        var _li = null;
+                        if(typeof column.visible == "undefined"||column.visible==true){
+                            _li = $('<li role="menuitem"><label><input type="checkbox" checked="checked" data-field="'+column.field+'" value="'+column.field+'" > '+column.title+'</label></li>');
+                        }else{
+                            _li = $('<li role="menuitem"><label><input type="checkbox" data-field="'+column.field+'" value="'+column.field+'" > '+column.title+'</label></li>');
+                            target.hideColumn(column.field);
+                        }
+                        _columns_ul.append(_li);
+                    }
+                });
+                _columns_div.append(_columns_ul);
+                target.before(_columns_div);
+                // 注册列选项事件
+                registerColumnClickEvent();
+            }else{
+                $.each(options.columns, function(i, column) {
+                    if (column.field != 'selectItem') {
+                        if(!(typeof column.visible == "undefined"||column.visible==true)){
+                            target.hideColumn(column.field);
+                        }
+                    }
+                });
+            }
+            // 缓存target对象
+            target.data('bootstrap.tree.table', target);
         }
         // 格式化数据，优化性能
         var formatData = function(data) {
@@ -109,49 +144,54 @@
                 _icon = options.expanderCollapsedClass;
             }
             $.each(options.columns, function(index, column) {
-                if(typeof column.visible == "undefined"||column.visible==true){
-                    // 判断有没有选择列
-                    if (column.field == 'selectItem') {
-                        hasSelectItem = true;
-                        var td = $('<td style="text-align:center;width:36px"></td>');
-                        if (column.radio) {
-                            var _ipt = $('<input name="select_item" type="radio" value="' + item[options.id] + '"></input>');
-                            td.append(_ipt);
-                        }
-                        if (column.checkbox) {
-                            var _ipt = $('<input name="select_item" type="checkbox" value="' + item[options.id] + '"></input>');
-                            td.append(_ipt);
-                        }
-                        tr.append(td);
-                    } else {
-                        var td = $('<td title="' + item[column.field] + '" name="' + column.field + '"></td>');
-                        if(column.width){
-                            td.css("width",column.width);
-                        }
-                        if(column.align){
-                            td.css("text-align",column.align);
-                        }
-                        if(column.width){
-                            td.css("vertical-align",column.valign);
-                        }
-                        // 增加formatter渲染
-                        if (column.formatter) {
-                            td.html(column.formatter.call(this, item[column.field], item, index));
-                        } else {
-                            td.text(item[column.field]);
-                        }
-                        if (options.expandColumn == index) {
-                            if (!isP) {
-                                td.prepend('<span class="treetable-expander"></span>')
-                            } else {
-                                td.prepend('<span class="treetable-expander ' + _icon + '"></span>')
-                            }
-                            for (var int = 0; int < (lv - 1); int++) {
-                                td.prepend('<span class="treetable-indent"></span>')
-                            }
-                        }
-                        tr.append(td);
+                // 判断有没有选择列
+                if (column.field == 'selectItem') {
+                    target.hasSelectItem = true;
+                    var td = $('<td style="text-align:center;width:36px"></td>');
+                    if (column.radio) {
+                        var _ipt = $('<input name="select_item" type="radio" value="' + item[options.id] + '"></input>');
+                        td.append(_ipt);
                     }
+                    if (column.checkbox) {
+                        var _ipt = $('<input name="select_item" type="checkbox" value="' + item[options.id] + '"></input>');
+                        td.append(_ipt);
+                    }
+                    tr.append(td);
+                } else {
+                    var td = $('<td name="' + column.field + '" class="' + column.field + '_cls"></td>');
+                    if(column.width){
+                        td.css("width",column.width);
+                    }
+                    if(column.align){
+                        td.css("text-align",column.align);
+                    }
+                    if(column.width){
+                        td.css("vertical-align",column.valign);
+                    }
+                    if(options.showTitle){
+                        td.addClass("ellipsis");
+                    }
+                    // 增加formatter渲染
+                    if (column.formatter) {
+                        td.html(column.formatter.call(this, item[column.field], item, index));
+                    } else {
+                        if(options.showTitle){
+                            // 只在字段没有formatter时才添加title属性
+                            td.attr("title",item[column.field]);
+                        }
+                        td.text(item[column.field]);
+                    }
+                    if (options.expandColumn == index) {
+                        if (!isP) {
+                            td.prepend('<span class="treetable-expander"></span>')
+                        } else {
+                            td.prepend('<span class="treetable-expander ' + _icon + '"></span>')
+                        }
+                        for (var int = 0; int < (lv - 1); int++) {
+                            td.prepend('<span class="treetable-indent"></span>')
+                        }
+                    }
+                    tr.append(td);
                 }
             });
             return tr;
@@ -189,11 +229,22 @@
             registerExpanderEvent();
             registerRowClickEvent();
         }
+        // 注册列选项事件
+        var registerColumnClickEvent = function() {
+            $(".bootstrap-tree-table .treetable-bars .columns label input").off('click').on('click', function () {
+                var $this = $(this);
+                if($this.prop('checked')){
+                    target.showColumn($(this).val());
+                }else{
+                    target.hideColumn($(this).val());
+                }
+            });
+        }
         // 注册行点击选中事件
         var registerRowClickEvent = function() {
             target.find("tbody").find("tr").unbind();
             target.find("tbody").find("tr").click(function() {
-                if (hasSelectItem) {
+                if (target.hasSelectItem) {
                     var _ipt = $(this).find("input[name='select_item']");
                     if (_ipt.attr("type") == "radio") {
                         _ipt.prop('checked', true);
@@ -255,18 +306,16 @@
             // 构造表头
             var thr = $('<tr></tr>');
             $.each(options.columns, function(i, column) {
-                if(typeof column.visible == "undefined"||column.visible==true){
-                    var th = null;
-                    // 判断有没有选择列
-                    if (i == 0 && column.field == 'selectItem') {
-                        hasSelectItem = true;
-                        th = $('<th style="width:36px"></th>');
-                    } else {
-                        th = $('<th style="' + ((column.width) ? ('width:' + column.width) : '') + '"></th>');
-                    }
-                    th.text(column.title);
-                    thr.append(th);
+                var th = null;
+                // 判断有没有选择列
+                if (i == 0 && column.field == 'selectItem') {
+                    target.hasSelectItem = true;
+                    th = $('<th style="width:36px"></th>');
+                } else {
+                    th = $('<th style="' + ((column.width) ? ('width:' + column.width) : '') + '" class="' + column.field + '_cls"></th>');
                 }
+                th.text(column.title);
+                thr.append(th);
             });
             var thead = $('<thead class="treetable-thead"></thead>');
             thead.append(thr);
@@ -367,9 +416,64 @@
             registerExpanderEvent();
             registerRowClickEvent();
         }
-        // 加载数据
-        target.load();
-        target.data('bootstrap.tree.table', target);
+
+        // 展开/折叠指定的行
+        target.toggleRow=function(id) {
+            var _rowData = target.data_obj["id_" + id];
+            var $row_expander = $("#"+_rowData.row_id).find(".treetable-expander");
+            $row_expander.trigger("click");
+        }
+        // 展开指定的行
+        target.expandRow=function(id) {
+            var _rowData = target.data_obj["id_" + id];
+            var $row_expander = $("#"+_rowData.row_id).find(".treetable-expander");
+            var _isCollapsed = $row_expander.hasClass(target.options.expanderCollapsedClass);
+            if (_isCollapsed) {
+                $row_expander.trigger("click");
+            }
+        }
+        // 折叠 指定的行
+        target.collapseRow=function(id) {
+            var _rowData = target.data_obj["id_" + id];
+            var $row_expander = $("#"+_rowData.row_id).find(".treetable-expander");
+            var _isExpanded = $row_expander.hasClass(target.options.expanderExpandedClass);
+            if (_isExpanded) {
+                $row_expander.trigger("click");
+            }
+        }
+        // 展开所有的行
+        target.expandAll=function() {
+            target.find("tbody").find("tr").find(".treetable-expander").each(function(i,n){
+                var _isCollapsed = $(n).hasClass(options.expanderCollapsedClass);
+                if (_isCollapsed) {
+                    $(n).trigger("click");
+                }
+            })
+        }
+        // 折叠所有的行
+        target.collapseAll=function() {
+            target.find("tbody").find("tr").find(".treetable-expander").each(function(i,n){
+                var _isExpanded = $(n).hasClass(options.expanderExpandedClass);
+                if (_isExpanded) {
+                    $(n).trigger("click");
+                }
+            })
+        }
+        // 显示指定列
+        target.showColumn=function(field) {
+            var _index = $.inArray(field, target.hiddenColumns);
+            if (_index > -1) {
+                target.hiddenColumns.splice(_index, 1);
+            }
+            target.find("."+field+"_cls").show();
+        }
+        // 隐藏指定列
+        target.hideColumn=function(field) {
+            target.hiddenColumns.push(field);
+            target.find("."+field+"_cls").hide();
+        }
+        // 初始化
+        init();
         return target;
     };
 
@@ -405,6 +509,35 @@
             if (data) {
                 target.appendData(data);
             }
+        },
+        // 展开/折叠指定的行
+        toggleRow: function(target, id) {
+            target.toggleRow(id);
+        },
+        // 展开指定的行
+        expandRow: function(target, id) {
+            target.expandRow(id);
+        },
+        // 折叠 指定的行
+        collapseRow: function(target, id) {
+            target.collapseRow(id);
+        },
+        // 展开所有的行
+        expandAll: function(target) {
+            target.expandAll();
+        },
+        // 折叠所有的行
+        collapseAll: function(target) {
+            target.collapseAll();
+        },
+        // 显示指定列
+        showColumn: function(target,field) {
+
+            target.showColumn(field);
+        },
+        // 隐藏指定列
+        hideColumn: function(target,field) {
+            target.hideColumn(field);
         }
         // 组件的其他方法也可以进行类似封装........
     };
@@ -425,6 +558,8 @@
         columns: [],
         toolbar: null, //顶部工具条
         height: 0,
+        showTitle: true, // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
+        showColumns: true, // 是否显示内容列下拉框
         expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
         expanderCollapsedClass: 'glyphicon glyphicon-chevron-right' // 缩起的按钮的图标
 

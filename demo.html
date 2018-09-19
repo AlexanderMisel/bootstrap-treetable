@@ -14,6 +14,9 @@
 <div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
   <button id="addBtn" type="button" class="btn btn-default">向表格添加数据</button>
   <button id="selectBtn" type="button" class="btn btn-default">测试选中</button>
+  <button id="expandRowBtn" type="button" class="btn btn-default">展开/折叠【系统管理】</button>
+  <button id="expandAllBtn" type="button" class="btn btn-default">展开/折叠 所有</button>
+  <button id="showColumnBtn" type="button" class="btn btn-default">显示/隐藏 【排序】列</button>
 </div>
 <table id="demo"></table>
 <!-- 全局js -->
@@ -1350,6 +1353,27 @@
                         "icon": "#"
                     }];
                     $('#demo').bootstrapTreeTable('appendData',data);
+                })
+                $("#expandRowBtn").click(function(){
+                    $('#demo').bootstrapTreeTable('toggleRow',1);
+                })
+                var _expandFlag_all = false;
+                $("#expandAllBtn").click(function(){
+                    if(_expandFlag_all){
+                        $('#demo').bootstrapTreeTable('expandAll');
+                    }else{
+                        $('#demo').bootstrapTreeTable('collapseAll');
+                    }
+                    _expandFlag_all = _expandFlag_all?false:true;
+                })
+                var _showFlag = true;
+                $("#showColumnBtn").click(function(){
+                    if(_showFlag){
+                        $('#demo').bootstrapTreeTable('hideColumn',"orderNum");
+                    }else{
+                        $('#demo').bootstrapTreeTable('showColumn',"orderNum");
+                    }
+                    _showFlag = _showFlag?false:true;
                 })
 </script>
 </body>

@@ -2,6 +2,20 @@
     padding: 10px 0;
 }
 
+.bootstrap-tree-table .treetable-bars .columns{
+    width: 150px;
+}
+.bootstrap-tree-table .treetable-bars .columns li label{
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.428571429;
+    max-width: 100%;
+    margin-bottom: 5px;
+    cursor:pointer;
+}
+
 .bootstrap-tree-table .treetable-table {
     margin: 0;
 }
@@ -46,9 +60,12 @@
     border-left: 1px solid #e7eaec;
     border-bottom: 1px solid #e7eaec;
     overflow: hidden;
+    vertical-align: middle;
+}
+
+.bootstrap-tree-table .treetable-table .treetable-tbody tr .ellipsis {
     white-space: nowrap;
     text-overflow: ellipsis;
-    vertical-align: middle;
 }
 
 .bootstrap-tree-table .treetable-table .treetable-thead,
