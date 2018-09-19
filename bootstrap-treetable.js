@@ -460,17 +460,27 @@
             })
         }
         // 显示指定列
-        target.showColumn=function(field) {
+        target.showColumn=function(field,flag) {
             var _index = $.inArray(field, target.hiddenColumns);
             if (_index > -1) {
                 target.hiddenColumns.splice(_index, 1);
             }
             target.find("."+field+"_cls").show();
+            //是否更新列选项状态
+            if(flag&&options.showColumns){
+                var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='"+field+"']")
+                $input.prop("checked", 'checked');
+            }
         }
         // 隐藏指定列
-        target.hideColumn=function(field) {
+        target.hideColumn=function(field,flag) {
             target.hiddenColumns.push(field);
             target.find("."+field+"_cls").hide();
+            //是否更新列选项状态
+            if(flag&&options.showColumns){
+                var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='"+field+"']")
+                $input.prop("checked", '');
+            }
         }
         // 初始化
         init();
@@ -532,12 +542,11 @@
         },
         // 显示指定列
         showColumn: function(target,field) {
-
-            target.showColumn(field);
+            target.showColumn(field,true);
         },
         // 隐藏指定列
         hideColumn: function(target,field) {
-            target.hideColumn(field);
+            target.hideColumn(field,true);
         }
         // 组件的其他方法也可以进行类似封装........
     };
