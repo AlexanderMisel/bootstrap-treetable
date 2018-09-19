@@ -182,6 +182,6 @@ var data = [{
     },{...}];
 $('#demo').bootstrapTreeTable('appendData',data);
 ```
-
+![输入图片说明](https://images.gitee.com/uploads/images/2018/0919/105807_f87387b7_405607.png "TIM截图20180919105422.png")
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/143841_6391c64a_405607.png "demo.png")
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0730/153142_6dc6ff87_405607.png "demo2.png")
