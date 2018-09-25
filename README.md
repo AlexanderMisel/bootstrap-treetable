@@ -124,6 +124,7 @@ toolbar: null,                  // 顶部工具条
 height: 0,                      // 表格高度
 showTitle: true,                // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
 showColumns: true,              // 是否显示内容列下拉框
+showRefresh: true,              // 是否显示刷新按钮
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 ```
