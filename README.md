@@ -6,6 +6,12 @@
 用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
 
 
+### 2018-09-25 更新内容
+
+> * 新增showRefresh参数
+> * 修正showColumns的一些个bug
+> * 重新整理部分代码
+
 ### 2018-09-19 更新内容
 
 > * 新增toggleRow、expandRow、collapseRow、expandAll、collapseAll、showColumn、hideColumn方法
