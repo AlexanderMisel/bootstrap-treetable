@@ -3,7 +3,7 @@
 #### 项目介绍
 这个东西最初出现在guns项目，基于jquery.treegrid.js实现的树。但在实际应用过程中这个方案数据量过大会有性能问题，遂抛掉了jquery.treegrid重新实现了相关功能。
 
-用法跟bootstrap-table差不多，这里就不多写了，当然也可以参考guns项目或ruoyi项目。
+用法跟bootstrap-table差不多。
 
 
 ### 2018-09-25 更新内容
@@ -124,6 +124,7 @@ toolbar: null,                  // 顶部工具条
 height: 0,                      // 表格高度
 showTitle: true,                // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
 showColumns: true,              // 是否显示内容列下拉框
+showRefresh: true,              // 是否显示刷新按钮
 expanderExpandedClass : 'glyphicon glyphicon-chevron-down',// 展开的按钮的图标
 expanderCollapsedClass : 'glyphicon glyphicon-chevron-right',// 缩起的按钮的图标
 ```
