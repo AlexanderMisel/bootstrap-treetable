@@ -191,6 +191,7 @@
             target.append($tbody);
             registerExpanderEvent();
             registerRowClickEvent();
+            initHiddenColumns();
         }
         // 缓存并格式化数据
         var formatData = function(data) {
@@ -396,7 +397,6 @@
                 target.lastAjaxParams=parms;
             }
             initServer(target.lastAjaxParams);
-            initHiddenColumns();
         }
         // 添加数据刷新表格
         target.appendData = function(data) {
