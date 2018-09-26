@@ -33,8 +33,6 @@
             initBody();
             // 初始化数据服务
             initServer();
-            // 初始化隐藏列
-            initHiddenColumns();
             // 缓存target对象
             target.data('bootstrap.tree.table', target);
         }
