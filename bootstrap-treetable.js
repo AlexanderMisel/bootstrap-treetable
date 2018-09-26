@@ -50,6 +50,7 @@
             if (options.bordered) {
                 target.addClass('table-bordered');
             }
+            target.html("");
         }
         // 初始化工具栏
         var initToolbar = function() {
@@ -280,6 +281,9 @@
                     }
                     if(column.align){
                         $td.css("text-align",column.align);
+                    }
+                    if(options.expandColumn == index){
+                        $td.css("text-align","left");
                     }
                     if(column.width){
                         $td.css("vertical-align",column.valign);
