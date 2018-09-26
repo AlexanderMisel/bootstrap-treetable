@@ -2,6 +2,7 @@
  * bootstrap-treetable
  * v1.0.4-beta
  * @author swifly
+ * @url https://gitee.com/cyf783/bootstrap-treetable/
  */
 (function($) {
     "use strict";
