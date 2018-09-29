@@ -4,6 +4,10 @@
     margin-bottom: 10px;
 }
 
+.bootstrap-tree-table .treetable-bars .tool-left{
+    float: left;
+}
+
 .bootstrap-tree-table .treetable-bars .tool-right{
     float: right;
 }
