@@ -66,11 +66,10 @@
         var initToolbar = function() {
             var $toolbar = $("<div class='treetable-bars'></div>");
             if (options.toolbar) {
-                $(options.toolbar).addClass('pull-left');
                 $(options.toolbar).addClass('tool-left');
                 $toolbar.append($(options.toolbar));
             }
-            var $rightToolbar = $('<div class="btn-group tool-right pull-right">');
+            var $rightToolbar = $('<div class="btn-group tool-right">');
             $toolbar.append($rightToolbar);
             target.parent().before($toolbar);
             // 是否显示刷新按钮

@@ -1,8 +1,11 @@
 .bootstrap-tree-table .treetable-bars .tool-left,
 .bootstrap-tree-table .treetable-bars .tool-right{
-    position: relative;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.bootstrap-tree-table .treetable-bars .tool-right{
+    float: right;
 }
 
 .bootstrap-tree-table .treetable-bars .columns{
