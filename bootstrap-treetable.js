@@ -1,6 +1,6 @@
 /**
  * bootstrap-treetable
- * v1.0.4-beta
+ * v1.0.5-beta
  * @author swifly
  * @url https://gitee.com/cyf783/bootstrap-treetable/
  */
@@ -33,6 +33,8 @@
             initBody();
             // 初始化数据服务
             initServer();
+            // 动态设置表头宽度
+            autoTheadWidth(true);
             // 缓存target对象
             target.data('bootstrap.tree.table', target);
         }
@@ -42,12 +44,18 @@
             var $main_div = $("<div class='bootstrap-tree-table'></div>");
             target.before($main_div);
             $main_div.append(target);
-            target.addClass("table table-hover treetable-table");
+            target.addClass("table treetable-table");
             if (options.striped) {
                 target.addClass('table-striped');
             }
             if (options.bordered) {
                 target.addClass('table-bordered');
+            }
+            if (options.hover) {
+                target.addClass('table-hover');
+            }
+            if (options.condensed) {
+                target.addClass('table-condensed');
             }
             target.html("");
         }
@@ -190,6 +198,28 @@
             registerExpanderEvent();
             registerRowClickEvent();
             initHiddenColumns();
+            // 动态设置表头宽度
+            autoTheadWidth()
+        }
+        // 动态设置表头宽度
+        var autoTheadWidth = function(initFlag) {
+            var $thead = target.find("thead");
+            var $tbody = target.find("tbody");
+            $thead.css("width", $tbody.children(":first").css("width"));
+            if(initFlag){
+                var borderWidth = parseInt(target.css("border-left-width")) + parseInt(target.css("border-right-width"))
+                var resizeWaiter = false;
+                $(window).resize(function() {
+                    if(!resizeWaiter){
+                        resizeWaiter = true;
+                        setTimeout(function(){
+                            $tbody.css("width", target.parent().width()-borderWidth);
+                            $thead.css("width", $tbody.children(":first").css("width"));
+                            resizeWaiter = false;
+                        }, 300);
+                    }
+                });
+            }
         }
         // 缓存并格式化数据
         var formatData = function(data) {
@@ -602,24 +632,26 @@
     };
 
     $.fn.bootstrapTreeTable.defaults = {
-        id: 'id', // 选取记录返回的值,用于设置父子关系
-        parentId: 'parentId', // 用于设置父子关系
-        rootIdValue: null, //设置根节点id值----可指定根节点，默认为null,"",0,"0"
-        data: null, // 构造table的数据集合
-        type: "GET", // 请求数据的ajax类型
-        url: null, // 请求数据的ajax的url
-        ajaxParams: {}, // 请求数据的ajax的data属性
-        expandColumn: 0, // 在哪一列上面显示展开按钮
-        expandAll: false, // 是否全部展开
-        expandFirst: true, // 是否默认第一级展开--expandAll为false时生效
-        striped: false, // 是否各行渐变色
-        bordered: true, // 是否显示边框
-        columns: [],
-        toolbar: null, //顶部工具条
-        height: 0,
-        showTitle: true, // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
-        showColumns: true, // 是否显示内容列下拉框
-        showRefresh: true,// 是否显示刷新按钮
+        id: 'id',                // 选取记录返回的值,用于设置父子关系
+        parentId: 'parentId',    // 用于设置父子关系
+        rootIdValue: null,       // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
+        data: null,              // 构造table的数据集合
+        type: "GET",             // 请求数据的ajax类型
+        url: null,               // 请求数据的ajax的url
+        ajaxParams: {},          // 请求数据的ajax的data属性
+        expandColumn: 0,         // 在哪一列上面显示展开按钮
+        expandAll: false,        // 是否全部展开
+        expandFirst: true,       // 是否默认第一级展开--expandAll为false时生效
+        striped: false,          // 是否各行渐变色
+        bordered: true,          // 是否显示边框
+        hover: true,             // 是否鼠标悬停
+        condensed: false,        // 是否紧缩表格
+        columns: [],             // 列
+        toolbar: null,           // 顶部工具条
+        height: 0,               // 表格高度
+        showTitle: true,         // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
+        showColumns: true,       // 是否显示内容列下拉框
+        showRefresh: true,       // 是否显示刷新按钮
         expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
         expanderCollapsedClass: 'glyphicon glyphicon-chevron-right' // 缩起的按钮的图标
 

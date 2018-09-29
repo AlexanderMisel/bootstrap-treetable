@@ -5,6 +5,7 @@
 .bootstrap-tree-table .treetable-bars .columns{
     width: 150px;
 }
+
 .bootstrap-tree-table .treetable-bars .columns li label{
     display: block;
     padding: 3px 20px;
@@ -22,12 +23,12 @@
 
 .bootstrap-tree-table .treetable-table .treetable-thead tr th {
     border: 0;
-    background: #f3f3f4;
-    border-radius: 4px;
-    border-left: 1px solid #e7eaec;
     border-bottom: 2px solid #e7eaec;
-    text-align: center;
     vertical-align: middle;
+}
+
+.bootstrap-tree-table .table-bordered .treetable-thead tr th {
+    border-left: 1px solid #e7eaec;
 }
 
 .bootstrap-tree-table .treetable-table .treetable-tbody {
@@ -57,10 +58,18 @@
 
 .bootstrap-tree-table .treetable-table .treetable-tbody tr td {
     border: 0;
-    border-left: 1px solid #e7eaec;
     border-bottom: 1px solid #e7eaec;
     overflow: hidden;
     vertical-align: middle;
+}
+
+.bootstrap-tree-table .table-bordered .treetable-tbody tr td {
+    border-left: 1px solid #e7eaec;
+}
+
+
+.bootstrap-tree-table .treetable-table .treetable-tbody :last-child td {
+    border-bottom: 0;
 }
 
 .bootstrap-tree-table .treetable-table .treetable-tbody tr .ellipsis {
