@@ -21,6 +21,7 @@
         target.data_obj = null; //用于缓存格式化后的数据-按id存对象
         target.hiddenColumns = []; //用于存放被隐藏列的field
         target.lastAjaxParams; //用户最后一次请求的参数
+        target.isFixWidth=false; //是否有固定宽度
         // 初始化
         var init = function() {
             // 初始化容器
@@ -42,9 +43,11 @@
         var initContainer = function() {
             // 在外层包装一下div，样式用的bootstrap-table的
             var $main_div = $("<div class='bootstrap-tree-table'></div>");
+            var $treetable = $("<div class='treetable-table'></div>");
             target.before($main_div);
-            $main_div.append(target);
-            target.addClass("table treetable-table");
+            $main_div.append($treetable);
+            $treetable.append(target);
+            target.addClass("table");
             if (options.striped) {
                 target.addClass('table-striped');
             }
@@ -61,14 +64,15 @@
         }
         // 初始化工具栏
         var initToolbar = function() {
-            // 工具条在外层包装一下div，样式用的bootstrap-table的
+            var $toolbar = $("<div class='treetable-bars'></div>");
             if (options.toolbar) {
-                var $tool_div = $("<div class='treetable-bars pull-left'></div>");
-                $tool_div.append($(options.toolbar));
-                target.before($tool_div);
+                $(options.toolbar).addClass('pull-left');
+                $(options.toolbar).addClass('tool-left');
+                $toolbar.append($(options.toolbar));
             }
-            var $rightToolbar = $('<div class="btn-group treetable-bars pull-right">');
-            target.before($rightToolbar);
+            var $rightToolbar = $('<div class="btn-group tool-right pull-right">');
+            $toolbar.append($rightToolbar);
+            target.parent().before($toolbar);
             // 是否显示刷新按钮
             if (options.showRefresh) {
                 var $refreshBtn = $('<button class="btn btn-default btn-outline" type="button" aria-label="refresh" title="刷新"><i class="glyphicon glyphicon-repeat"></i></button>');
@@ -122,6 +126,9 @@
                     $th = $('<th style="width:36px"></th>');
                 } else {
                     $th = $('<th style="' + ((column.width) ? ('width:' + column.width) : '') + '" class="' + column.field + '_cls"></th>');
+                }
+                if((!target.isFixWidth)&& column.width){
+                    target.isFixWidth = column.width.indexOf("px")>-1?true:false;
                 }
                 $th.text(column.title);
                 $thr.append($th);
@@ -203,23 +210,29 @@
         }
         // 动态设置表头宽度
         var autoTheadWidth = function(initFlag) {
-            var $thead = target.find("thead");
-            var $tbody = target.find("tbody");
-            $thead.css("width", $tbody.children(":first").css("width"));
-            if(initFlag){
+            if(options.height>0){
+                var $thead = target.find("thead");
+                var $tbody = target.find("tbody");
                 var borderWidth = parseInt(target.css("border-left-width")) + parseInt(target.css("border-right-width"))
-                var resizeWaiter = false;
-                $(window).resize(function() {
-                    if(!resizeWaiter){
-                        resizeWaiter = true;
-                        setTimeout(function(){
-                            $tbody.css("width", target.parent().width()-borderWidth);
-                            $thead.css("width", $tbody.children(":first").css("width"));
-                            resizeWaiter = false;
-                        }, 300);
-                    }
-                });
+                
+                $thead.css("width", $tbody.children(":first").width());
+                if(initFlag){
+                    var resizeWaiter = false;
+                    $(window).resize(function() {
+                        if(!resizeWaiter){
+                            resizeWaiter = true;
+                            setTimeout(function(){
+                                if(!target.isFixWidth){
+                                    $tbody.css("width", target.parent().width()-borderWidth);
+                                }
+                                $thead.css("width", $tbody.children(":first").width());
+                                resizeWaiter = false;
+                            }, 300);
+                        }
+                    });
+                }
             }
+        
         }
         // 缓存并格式化数据
         var formatData = function(data) {
@@ -315,7 +328,7 @@
                     if(options.expandColumn == index){
                         $td.css("text-align","left");
                     }
-                    if(column.width){
+                    if(column.valign){
                         $td.css("vertical-align",column.valign);
                     }
                     if(options.showTitle){
