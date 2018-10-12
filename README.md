@@ -6,6 +6,13 @@
 用法跟bootstrap-table差不多。
 
 
+### 2018-10-12 更新内容
+
+> * 重构代码，照抄BootstrapTable大神作者代码
+> * 新增'onAll','onClickCell','onDblClickCell','onClickRow','onDblClickRow','onLoadSuccess','onLoadError'事件
+> * 新增destroy方法
+
+
 ### 2018-09-29 更新内容
 
 > * 新增condensed、hover参数
