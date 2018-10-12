@@ -17,6 +17,7 @@
   <button id="expandRowBtn" type="button" class="btn btn-default">展开/折叠【系统管理】</button>
   <button id="expandAllBtn" type="button" class="btn btn-default">展开/折叠 所有</button>
   <button id="showColumnBtn" type="button" class="btn btn-default">显示/隐藏 【排序】列</button>
+  <button id="destroyBtn" type="button" class="btn btn-default">销毁</button>
 </div>
 <table id="demo"></table>
 <!-- 全局js -->
@@ -43,7 +44,7 @@
                     toolbar: "#demo-toolbar",    //顶部工具条
                     expandColumn : 1,            // 在哪一列上面显示展开按钮
                     columns: [{
-                        field: 'selectItem', 
+                        field: 'selectItem',
                         radio: true
                      },{
                         title: '菜单名称',
@@ -1165,9 +1166,9 @@
                 });
                 $("#selectBtn").click(function(){
                     var selecteds = $('#demo').bootstrapTreeTable('getSelections');
-                    $.each(selecteds,function(_i,_item){ 
+                    $.each(selecteds,function(_i,_item){
                         console.log(_item);
-                    }); 
+                    });
                     alert("看console");
                 })
                 $("#addBtn").click(function(){
@@ -1374,6 +1375,9 @@
                         $('#demo').bootstrapTreeTable('showColumn',"orderNum");
                     }
                     _showFlag = _showFlag?false:true;
+                })
+                $("#destroyBtn").click(function(){
+                    $('#demo').bootstrapTreeTable('destroy');
                 })
 </script>
 </body>

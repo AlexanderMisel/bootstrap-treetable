@@ -10,6 +10,7 @@
     var BootstrapTreeTable = function(el, options) {
         this.options = options;
         this.$el = $(el);
+        this.$el_ = this.$el.clone();
         this.hasSelectItem = false; // 是否有radio或checkbox
         this.data_list = null; //用于缓存格式化后的数据-按父分组
         this.data_obj = null; //用于缓存格式化后的数据-按id存对象
@@ -17,7 +18,7 @@
         this.lastAjaxParams; //用户最后一次请求的参数
         this.isFixWidth = false; //是否有固定宽度
         this.init();
-    }
+    };
     // 初始化
     BootstrapTreeTable.prototype.init = function() {
         // 初始化容器
@@ -56,7 +57,7 @@
             self.$el.addClass('table-condensed');
         }
         self.$el.html("");
-    }
+    };
     // 初始化工具栏
     BootstrapTreeTable.prototype.initToolbar = function() {
         var self = this;
@@ -103,14 +104,14 @@
                 }
             });
         }
-    }
+    };
     // 初始化隐藏列
     BootstrapTreeTable.prototype.initHiddenColumns = function() {
         var self = this;
         $.each(self.hiddenColumns, function(i, field) {
             self.$el.find("." + field + "_cls").hide();
         });
-    }
+    };
     // 初始化表头
     BootstrapTreeTable.prototype.initHeader = function() {
         var self = this;
@@ -133,7 +134,7 @@
         var $thead = $('<thead class="treetable-thead"></thead>');
         $thead.append($thr);
         self.$el.append($thead);
-    }
+    };
     // 初始化表体
     BootstrapTreeTable.prototype.initBody = function() {
         var self = this;
@@ -143,7 +144,7 @@
         if (self.options.height) {
             $tbody.css("height", self.options.height);
         }
-    }
+    };
     // 初始化数据服务
     BootstrapTreeTable.prototype.initServer = function(parms) {
         var self = this;
@@ -162,16 +163,23 @@
                 dataType: "JSON",
                 success: function(data, textStatus, jqXHR) {
                     self.renderTable(data);
+                    self.trigger('load-success', data);
                 },
-                error: function(xhr, textStatus) {
+                error: function(res, textStatus) {
                     var _errorMsg = '<tr><td colspan="' + self.options.columns.length + '"><div style="display: block;text-align: center;">' + xhr.responseText + '</div></td></tr>'
                     $tbody.html(_errorMsg);
+                    self.trigger('load-error', textStatus, res);
                 },
             });
         } else {
-            self.renderTable(self.options.data);
+            if(self.options.data){
+                self.renderTable(self.options.data);
+                self.trigger('load-success', self.options.data);
+            }else{
+                self.trigger('load-error');
+            }
         }
-    }
+    };
     // 加载完数据后渲染表格
     BootstrapTreeTable.prototype.renderTable = function(data) {
         var self = this;
@@ -207,7 +215,7 @@
         self.initHiddenColumns();
         // 动态设置表头宽度
         self.autoTheadWidth()
-    }
+    };
     // 动态设置表头宽度
     BootstrapTreeTable.prototype.autoTheadWidth = function(initFlag) {
         var self = this;
@@ -234,7 +242,7 @@
             }
         }
 
-    }
+    };
     // 缓存并格式化数据
     BootstrapTreeTable.prototype.formatData = function(data) {
         var self = this;
@@ -265,7 +273,7 @@
             }
             self.data_obj["id_" + item[self.options.id]] = item;
         });
-    }
+    };
     // 递归获取子节点并且设置子节点
     BootstrapTreeTable.prototype.recursionNode = function(parentNode, lv, row_id, p_id) {
         var self = this;
@@ -313,12 +321,12 @@
                 self.hasSelectItem = true;
                 var $td = $('<td style="text-align:center;width:36px"></td>');
                 if (column.radio) {
-                    var _ipt = $('<input name="select_item" type="radio" value="' + item[self.options.id] + '"></input>');
-                    $td.append(_ipt);
+                    var $ipt = $('<input name="select_item" type="radio" value="' + item[self.options.id] + '"></input>');
+                    $td.append($ipt);
                 }
                 if (column.checkbox) {
-                    var _ipt = $('<input name="select_item" type="checkbox" value="' + item[self.options.id] + '"></input>');
-                    $td.append(_ipt);
+                    var $ipt = $('<input name="select_item" type="checkbox" value="' + item[self.options.id] + '"></input>');
+                    $td.append($ipt);
                 }
                 $tr.append($td);
             } else {
@@ -362,14 +370,14 @@
             }
         });
         return $tr;
-    }
+    };
     // 注册刷新按钮点击事件
     BootstrapTreeTable.prototype.registerRefreshBtnClickEvent = function(btn) {
         var self = this;
         $(btn).off('click').on('click', function() {
             self.refresh();
         });
-    }
+    };
     // 注册列选项事件
     BootstrapTreeTable.prototype.registerColumnClickEvent = function() {
         var self = this;
@@ -381,35 +389,40 @@
                 self.hideColumn($(this).val());
             }
         });
-    }
-    // 注册行点击选中事件
+    };
+    // 注册行点击事件
     BootstrapTreeTable.prototype.registerRowClickEvent = function() {
         var self = this;
-        self.$el.find("tbody").find("tr").unbind();
-        self.$el.find("tbody").find("tr").click(function() {
+        self.$el.find("tbody").find("tr").find("td").off('click dblclick').on('click dblclick', function(e) {
+            var $td = $(this),
+                $tr = $td.parent(),
+                $ipt = $tr.find("input[name='select_item']"),
+                item = self.data_obj["id_" + $ipt.val()],
+                field = $td.attr("name"),
+                value = item[field];
+            self.trigger(e.type === 'click' ? 'click-cell' : 'dbl-click-cell', field, value, item, $td);
+            self.trigger(e.type === 'click' ? 'click-row' : 'dbl-click-row', item, $tr, field);
             if (self.hasSelectItem) {
-                var _ipt = $(this).find("input[name='select_item']");
-                if (_ipt.attr("type") == "radio") {
-                    _ipt.prop('checked', true);
+                if ($ipt.attr("type") == "radio") {
+                    $ipt.prop('checked', true);
                     self.$el.find("tbody").find("tr").removeClass("treetable-selected");
                     $(this).addClass("treetable-selected");
                 } else {
-                    if (_ipt.prop('checked')) {
-                        _ipt.prop('checked', false);
+                    if ($ipt.prop('checked')) {
+                        $ipt.prop('checked', false);
                         $(this).removeClass("treetable-selected");
                     } else {
-                        _ipt.prop('checked', true);
+                        $ipt.prop('checked', true);
                         $(this).addClass("treetable-selected");
                     }
                 }
             }
         });
-    }
+    };
     // 注册小图标点击事件--展开缩起
     BootstrapTreeTable.prototype.registerExpanderEvent = function() {
         var self = this;
-        self.$el.find("tbody").find("tr").find(".treetable-expander").unbind();
-        self.$el.find("tbody").find("tr").find(".treetable-expander").click(function() {
+        self.$el.find("tbody").find("tr").find(".treetable-expander").off('click').on('click', function() {
             var _isExpanded = $(this).hasClass(self.options.expanderExpandedClass);
             var _isCollapsed = $(this).hasClass(self.options.expanderCollapsedClass);
             if (_isExpanded || _isCollapsed) {
@@ -439,7 +452,7 @@
                 }
             }
         });
-    }
+    };
     // 刷新数据
     BootstrapTreeTable.prototype.refresh = function(parms) {
         var self = this;
@@ -447,7 +460,7 @@
             self.lastAjaxParams = parms;
         }
         self.initServer(self.lastAjaxParams);
-    }
+    };
     // 添加数据刷新表格
     BootstrapTreeTable.prototype.appendData = function(data) {
         var self = this;
@@ -518,15 +531,14 @@
         self.registerExpanderEvent();
         self.registerRowClickEvent();
         self.initHiddenColumns();
-    }
-
+    };
     // 展开/折叠指定的行
     BootstrapTreeTable.prototype.toggleRow = function(id) {
         var self = this;
         var _rowData = self.data_obj["id_" + id];
         var $row_expander = $("#" + _rowData.row_id).find(".treetable-expander");
         $row_expander.trigger("click");
-    }
+    };
     // 展开指定的行
     BootstrapTreeTable.prototype.expandRow = function(id) {
         var self = this;
@@ -536,7 +548,7 @@
         if (_isCollapsed) {
             $row_expander.trigger("click");
         }
-    }
+    };
     // 折叠 指定的行
     BootstrapTreeTable.prototype.collapseRow = function(id) {
         var self = this;
@@ -546,7 +558,7 @@
         if (_isExpanded) {
             $row_expander.trigger("click");
         }
-    }
+    };
     // 展开所有的行
     BootstrapTreeTable.prototype.expandAll = function() {
         var self = this;
@@ -556,7 +568,7 @@
                 $(n).trigger("click");
             }
         })
-    }
+    };
     // 折叠所有的行
     BootstrapTreeTable.prototype.collapseAll = function() {
         var self = this;
@@ -566,7 +578,7 @@
                 $(n).trigger("click");
             }
         })
-    }
+    };
     // 显示指定列
     BootstrapTreeTable.prototype.showColumn = function(field, flag) {
         var self = this;
@@ -580,29 +592,47 @@
             var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='" + field + "']")
             $input.prop("checked", 'checked');
         }
-    }
+    };
     // 隐藏指定列
-    BootstrapTreeTable.prototype.hideColumn = function(field, flag) {
+    BootstrapTreeTable.prototype.hideColumn = function(field) {
         var self = this;
         self.hiddenColumns.push(field);
         self.$el.find("." + field + "_cls").hide();
         //是否更新列选项状态
-        if (flag && self.options.showColumns) {
+        if (self.options.showColumns) {
             var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='" + field + "']")
             $input.prop("checked", '');
         }
-    }
+    };
+    // 获取已选行
+    BootstrapTreeTable.prototype.getSelections = function() {
+        var self = this;
+        // 所有被选中的记录input
+        var $ipt = self.$el.find("tbody").find("tr").find("input[name='select_item']:checked");
+        var chk_value = [];
+        // 如果是radio
+        if ($ipt.attr("type") == "radio") {
+            var _data = self.data_obj["id_" + $ipt.val()];
+            chk_value.push(_data);
+        } else {
+            $ipt.each(function(_i, _item) {
+                var _data = self.data_obj["id_" + $(_item).val()];
+                chk_value.push(_data);
+            });
+        }
+        return chk_value;
+    };
     // 触发事件
     BootstrapTreeTable.prototype.trigger = function(name) {
         var self = this;
         var args = Array.prototype.slice.call(arguments, 1);
 
-        name += '.bs.table';
-        self.options[BootstrapTable.EVENTS[name]].apply(self.options, args);
+        name += '.bs.tree.table';
+        self.options[BootstrapTreeTable.EVENTS[name]].apply(self.options, args);
         self.$el.trigger($.Event(name), args);
 
         self.options.onAll(name, args);
-        self.$el.trigger($.Event('all.bs.table'), [name, args]);
+        self.$el.trigger($.Event('all.bs.tree.table'), [name, args]);
     };
     // 销毁
     BootstrapTreeTable.prototype.destroy = function() {
@@ -611,72 +641,34 @@
         self.$el.insertBefore($container);
         $(self.options.toolbar).insertBefore(self.$el);
         $container.remove();
+        this.$el.html(this.$el_.html());
     };
 
-    // 组件方法封装........
-    BootstrapTreeTable.methods = {
-        // 为了兼容bootstrap-table的写法，统一返回数组，这里返回了表格显示列的数据
-        getSelections: function(target, data) {
-            // 所有被选中的记录input
-            var _ipt = target.$el.find("tbody").find("tr").find("input[name='select_item']:checked");
-            var chk_value = [];
-            // 如果是radio
-            if (_ipt.attr("type") == "radio") {
-                var _data = target.data_obj["id_" + _ipt.val()];
-                chk_value.push(_data);
-            } else {
-                _ipt.each(function(_i, _item) {
-                    var _data = target.data_obj["id_" + $(_item).val()];
-                    chk_value.push(_data);
-                });
-            }
-            return chk_value;
-        },
-        // 刷新记录
-        refresh: function(target, parms) {
-            if (parms) {
-                target.refresh(parms);
-            } else {
-                target.refresh();
-            }
-        },
-        // 添加数据到表格
-        appendData: function(target, data) {
-            if (data) {
-                target.appendData(data);
-            }
-        },
-        // 展开/折叠指定的行
-        toggleRow: function(target, id) {
-            target.toggleRow(id);
-        },
-        // 展开指定的行
-        expandRow: function(target, id) {
-            target.expandRow(id);
-        },
-        // 折叠 指定的行
-        collapseRow: function(target, id) {
-            target.collapseRow(id);
-        },
-        // 展开所有的行
-        expandAll: function(target) {
-            target.expandAll();
-        },
-        // 折叠所有的行
-        collapseAll: function(target) {
-            target.collapseAll();
-        },
-        // 显示指定列
-        showColumn: function(target, field) {
-            target.showColumn(field, true);
-        },
-        // 隐藏指定列
-        hideColumn: function(target, field) {
-            target.hideColumn(field, true);
-        }
-        // 组件的其他方法也可以进行类似封装........
-    };
+    // 组件方法
+    BootstrapTreeTable.METHODS = [
+        "getSelections",
+        "refresh",
+        "appendData",
+        "toggleRow",
+        "expandRow",
+        "collapseRow",
+        "expandAll",
+        "collapseAll",
+        "showColumn",
+        "hideColumn",
+        "destroy"
+    ];
 
+    // 组件事件
+    BootstrapTreeTable.EVENTS = {
+        'all.bs.tree.table': 'onAll',
+        'click-cell.bs.tree.table': 'onClickCell',
+        'dbl-click-cell.bs.tree.table': 'onDblClickCell',
+        'click-row.bs.tree.table': 'onClickRow',
+        'dbl-click-row.bs.tree.table': 'onDblClickRow',
+        'load-success.bs.tree.table': 'onLoadSuccess',
+        'load-error.bs.tree.table': 'onLoadError'
+    };
     // 默认配置
     BootstrapTreeTable.DEFAULTS = {
         id: 'id', // 选取记录返回的值,用于设置父子关系
@@ -701,6 +693,9 @@
         showRefresh: true, // 是否显示刷新按钮
         expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
         expanderCollapsedClass: 'glyphicon glyphicon-chevron-right', // 缩起的按钮的图标
+        onAll: function(data) {
+            return false;
+        },
         onLoadSuccess: function(data) {
             return false;
         },
@@ -711,12 +706,16 @@
             return false;
         },
         onDblClickCell: function(field, value, row, $element) {
+            console.log(field)
+            console.log(value)
+            console.log(row)
+            console.log($element)
             return false;
         },
-        onClickRow: function(item, $element) {
+        onClickRow: function(row, $element) {
             return false;
         },
-        onDblClickRow: function(item, $element) {
+        onDblClickRow: function(row, $element) {
             return false;
         }
     };
@@ -724,39 +723,27 @@
     $.fn.bootstrapTreeTable = function(option) {
         var value,
             args = Array.prototype.slice.call(arguments, 1);
-
         this.each(function() {
             var $this = $(this),
                 data = $this.data('bootstrap.tree.table'),
                 options = $.extend({}, BootstrapTreeTable.DEFAULTS, $this.data(),
                     typeof option === 'object' && option);
-
             if (typeof option === 'string') {
-
-                var method = BootstrapTreeTable.methods[option];
-
-                if (!method) {
+                if ($.inArray(option, BootstrapTreeTable.METHODS) < 0) {
                     throw new Error("Unknown method: " + option);
                 }
-
                 if (!data) {
                     return;
                 }
-
-                args.unshift(data);
-
-                value = method.apply(method, args);
-
+                value = data[option].apply(data, args);
                 if (option === 'destroy') {
                     $this.removeData('bootstrap.tree.table');
                 }
             }
-
             if (!data) {
                 $this.data('bootstrap.tree.table', (data = new BootstrapTreeTable(this, options)));
             }
         });
-
         return typeof value === 'undefined' ? this : value;
     };
 })(jQuery);
