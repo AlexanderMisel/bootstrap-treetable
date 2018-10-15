@@ -406,14 +406,14 @@
                 if ($ipt.attr("type") == "radio") {
                     $ipt.prop('checked', true);
                     self.$el.find("tbody").find("tr").removeClass("treetable-selected");
-                    $(this).addClass("treetable-selected");
+                    $tr.addClass("treetable-selected");
                 } else {
                     if ($ipt.prop('checked')) {
                         $ipt.prop('checked', false);
-                        $(this).removeClass("treetable-selected");
+                        $tr.removeClass("treetable-selected");
                     } else {
                         $ipt.prop('checked', true);
-                        $(this).addClass("treetable-selected");
+                        $tr.addClass("treetable-selected");
                     }
                 }
             }
@@ -706,10 +706,6 @@
             return false;
         },
         onDblClickCell: function(field, value, row, $element) {
-            console.log(field)
-            console.log(value)
-            console.log(row)
-            console.log($element)
             return false;
         },
         onClickRow: function(row, $element) {
