@@ -166,7 +166,7 @@
                     self.trigger('load-success', data);
                 },
                 error: function(res, textStatus) {
-                    var _errorMsg = '<tr><td colspan="' + self.options.columns.length + '"><div style="display: block;text-align: center;">' + xhr.responseText + '</div></td></tr>'
+                    var _errorMsg = '<tr><td colspan="' + self.options.columns.length + '"><div style="display: block;text-align: center;">' + res.responseText + '</div></td></tr>'
                     $tbody.html(_errorMsg);
                     self.trigger('load-error', textStatus, res);
                 },
@@ -296,7 +296,7 @@
         item.row_id = row_id;
         item.p_id = p_id;
         item.lv = lv;
-        var $tr = $('<tr id="' + row_id + '" pid="' + p_id + '"></tr>');
+        var $tr = $('<tr id="' + row_id + '" pid="' + p_id + '" dataid="' + item[self.options.id] + '"></tr>');
         var _icon = self.options.expanderCollapsedClass;
         if (self.options.expandAll) {
             $tr.css("display", "table");
@@ -396,13 +396,13 @@
         self.$el.find("tbody").find("tr").find("td").off('click dblclick').on('click dblclick', function(e) {
             var $td = $(this),
                 $tr = $td.parent(),
-                $ipt = $tr.find("input[name='select_item']"),
-                item = self.data_obj["id_" + $ipt.val()],
+                item = self.data_obj["id_" + $tr.attr("dataid")],
                 field = $td.attr("name"),
                 value = item[field];
             self.trigger(e.type === 'click' ? 'click-cell' : 'dbl-click-cell', field, value, item, $td);
             self.trigger(e.type === 'click' ? 'click-row' : 'dbl-click-row', item, $tr, field);
             if (self.hasSelectItem) {
+                var $ipt = $tr.find("input[name='select_item']");
                 if ($ipt.attr("type") == "radio") {
                     $ipt.prop('checked', true);
                     self.$el.find("tbody").find("tr").removeClass("treetable-selected");
@@ -607,20 +607,23 @@
     // 获取已选行
     BootstrapTreeTable.prototype.getSelections = function() {
         var self = this;
-        // 所有被选中的记录input
-        var $ipt = self.$el.find("tbody").find("tr").find("input[name='select_item']:checked");
-        var chk_value = [];
-        // 如果是radio
-        if ($ipt.attr("type") == "radio") {
-            var _data = self.data_obj["id_" + $ipt.val()];
-            chk_value.push(_data);
-        } else {
-            $ipt.each(function(_i, _item) {
-                var _data = self.data_obj["id_" + $(_item).val()];
+        if (self.hasSelectItem) {
+            // 所有被选中的记录input
+            var $ipt = self.$el.find("tbody").find("tr").find("input[name='select_item']:checked");
+            var chk_value = [];
+            // 如果是radio
+            if ($ipt.attr("type") == "radio") {
+                var _data = self.data_obj["id_" + $ipt.val()];
                 chk_value.push(_data);
-            });
+            } else {
+                $ipt.each(function(_i, _item) {
+                    var _data = self.data_obj["id_" + $(_item).val()];
+                    chk_value.push(_data);
+                });
+            }
+            return chk_value;
         }
-        return chk_value;
+        return;
     };
     // 触发事件
     BootstrapTreeTable.prototype.trigger = function(name) {
