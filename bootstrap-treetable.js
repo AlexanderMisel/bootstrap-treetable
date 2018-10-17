@@ -205,7 +205,7 @@
         // 下边的操作主要是为了查询时让一些没有根节点的节点显示
         $.each(data, function(i, item) {
             if (!item.isShow) {
-                var tr = renderRow(item, false, 1, "", "");
+                var tr = self.renderRow(item, false, 1, "", "");
                 $tbody.append(tr);
             }
         });
