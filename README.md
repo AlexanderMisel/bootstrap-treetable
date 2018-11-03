@@ -6,6 +6,14 @@
 用法跟bootstrap-table差不多。
 
 
+### 2018-11-03 更新内容
+
+> * 重新实现固定thead
+> * 兼容bootstrap4,就是感觉V4的样式整体偏大，对于这个问题，这里就不处理了。
+> * 自带ICON，bootstrap4不在有ICON，所以自带了。。。如果不喜欢，可以用自己设置参数换掉。
+> * 新增width、toolColumnsClass、toolRefreshClass参数
+
+
 ### 2018-10-12 更新内容
 
 > * 重构代码，照抄BootstrapTable大神作者代码

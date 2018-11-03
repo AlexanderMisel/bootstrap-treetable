@@ -7,22 +7,23 @@
     <title>bootstrap-treetable</title>
     <meta name="keywords" content="bootstrap-treetable">
     <meta name="description" content="bootstrap-treetable">
-    <link rel="stylesheet" href="./libs/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="./libs/v4/bootstrap.min.css" type="text/css" />
     <link rel="stylesheet" href="./bootstrap-treetable.css" type="text/css" />
 </head>
 <body>
-<div id="demo-toolbar" class="btn-group" role="group" aria-label="...">
-  <button id="addBtn" type="button" class="btn btn-default">向表格添加数据</button>
-  <button id="selectBtn" type="button" class="btn btn-default">测试选中</button>
-  <button id="expandRowBtn" type="button" class="btn btn-default">展开/折叠【系统管理】</button>
-  <button id="expandAllBtn" type="button" class="btn btn-default">展开/折叠 所有</button>
-  <button id="showColumnBtn" type="button" class="btn btn-default">显示/隐藏 【排序】列</button>
-  <button id="destroyBtn" type="button" class="btn btn-default">销毁</button>
+<div id="demo-toolbar"  class="btn-group btn-group-toggle" data-toggle="buttons">
+  <button id="addBtn" type="button" class="btn btn-secondary">向表格添加数据</button>
+  <button id="selectBtn" type="button" class="btn btn-secondary">测试选中</button>
+  <button id="expandRowBtn" type="button" class="btn btn-secondary">展开/折叠【系统管理】</button>
+  <button id="expandAllBtn" type="button" class="btn btn-secondary">展开/折叠 所有</button>
+  <button id="showColumnBtn" type="button" class="btn btn-secondary">显示/隐藏 【排序】列</button>
+  <button id="destroyBtn" type="button" class="btn btn-secondary">销毁</button>
 </div>
 <table id="demo"></table>
 <!-- 全局js -->
 <script type="text/javascript" src="./libs/jquery.min.js"></script>
-<script type="text/javascript" src="./libs/bootstrap.min.js"></script>
+<script type="text/javascript" src="./libs/v4/popper.min.js"></script>
+<script type="text/javascript" src="./libs/v4/bootstrap.min.js"></script>
 <script type="text/javascript" src="./bootstrap-treetable.js"></script>
 <script type="text/javascript">
 /**
@@ -43,6 +44,7 @@
                 var treeTable = $('#demo').bootstrapTreeTable({
                     toolbar: "#demo-toolbar",    //顶部工具条
                     expandColumn : 1,            // 在哪一列上面显示展开按钮
+                    height:500,
                     columns: [{
                         field: 'selectItem',
                         radio: true

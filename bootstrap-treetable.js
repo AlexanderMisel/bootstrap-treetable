@@ -11,13 +11,20 @@
         this.options = options;
         this.$el = $(el);
         this.$el_ = this.$el.clone();
-        this.hasSelectItem = false; // 是否有radio或checkbox
         this.data_list = null; //用于缓存格式化后的数据-按父分组
         this.data_obj = null; //用于缓存格式化后的数据-按id存对象
         this.hiddenColumns = []; //用于存放被隐藏列的field
         this.lastAjaxParams; //用户最后一次请求的参数
-        this.isFixWidth = false; //是否有固定宽度
+        this.hasSelectItem = false; // 是否有radio或checkbox
+        this.hasFixWidth = false; //是否有固定宽度
+        this.leftFrozenColumns = [];
+        this.rightFrozenColumns = [];
+        this.noFrozenColumns = [];
         this.init();
+        var self = this;
+        $(window).resize(function() {
+            self.autoReSize();
+        });
     };
     // 初始化
     BootstrapTreeTable.prototype.init = function() {
@@ -31,19 +38,19 @@
         this.initBody();
         // 初始化数据服务
         this.initServer();
-        // 动态设置表头宽度
-        this.autoTheadWidth(true);
     };
     // 初始化容器
     BootstrapTreeTable.prototype.initContainer = function() {
         var self = this;
         // 在外层包装一下div，样式用的bootstrap-table的
         var $container = $("<div class='bootstrap-tree-table'></div>");
-        var $treetable = $("<div class='treetable-table'></div>");
+        var $treetable = $("<div class='treetable-box'></div>");
+        var $bodyBox = $("<div class='treetable-body-box'></div>");
         self.$el.before($container);
         $container.append($treetable);
-        $treetable.append(self.$el);
-        self.$el.addClass("table");
+        $treetable.append($bodyBox);
+        $bodyBox.append(self.$el);
+        self.$el.addClass("table treetable-table");
         if (self.options.striped) {
             self.$el.addClass('table-striped');
         }
@@ -55,6 +62,14 @@
         }
         if (self.options.condensed) {
             self.$el.addClass('table-condensed');
+        }
+        if (self.options.width) {
+            $container.css('width',self.options.width);
+            $treetable.css('width',self.options.width);
+        }
+        // 默认高度
+        if (self.options.height) {
+            $bodyBox.css("height", self.options.height);
         }
         self.$el.html("");
     };
@@ -68,19 +83,19 @@
         }
         var $rightToolbar = $('<div class="btn-group tool-right">');
         $toolbar.append($rightToolbar);
-        self.$el.parent().before($toolbar);
+        self.$el.parent().parent().before($toolbar);
         // 是否显示刷新按钮
         if (self.options.showRefresh) {
-            var $refreshBtn = $('<button class="btn btn-default btn-outline" type="button" aria-label="refresh" title="刷新"><i class="glyphicon glyphicon-repeat"></i></button>');
+            var $refreshBtn = $('<button class="btn btn-default btn-outline" type="button" aria-label="refresh" title="刷新"><i class="'+self.options.toolRefreshClass+'"></i></button>');
             $rightToolbar.append($refreshBtn);
             self.registerRefreshBtnClickEvent($refreshBtn);
         }
         // 是否显示列选项
         if (self.options.showColumns) {
-            var $columns_div = $('<div class="btn-group pull-right" title="列"><button type="button" aria-label="columns" class="btn btn-default btn-outline dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-list"></i> <span class="caret"></span></button></div>');
-            var $columns_ul = $('<ul class="dropdown-menu columns" role="menu"></ul>');
+            var $columns_div = $('<div class="btn-group pull-right" title="列"><button type="button" aria-label="columns" class="btn btn-default btn-outline dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="'+self.options.toolColumnsClass+'"></i> <span class="caret"></span></button></div>');
+            var $columns_ul = $('<ul class="dropdown-menu dropdown-menu-right columns" role="menu"></ul>');
             $.each(self.options.columns, function(i, column) {
-                if (column.field != 'selectItem') {
+                if (!(column.checkbox || column.radio)) {
                     var _li = null;
                     if (typeof column.visible == "undefined" || column.visible == true) {
                         _li = $('<li role="menuitem"><label><input type="checkbox" checked="checked" data-field="' + column.field + '" value="' + column.field + '" > ' + column.title + '</label></li>');
@@ -97,7 +112,7 @@
             self.registerColumnClickEvent();
         } else {
             $.each(self.options.columns, function(i, column) {
-                if (column.field != 'selectItem') {
+                if (!(column.checkbox || column.radio)) {
                     if (!(typeof column.visible == "undefined" || column.visible == true)) {
                         self.hiddenColumns.push(column.field);
                     }
@@ -109,7 +124,7 @@
     BootstrapTreeTable.prototype.initHiddenColumns = function() {
         var self = this;
         $.each(self.hiddenColumns, function(i, field) {
-            self.$el.find("." + field + "_cls").hide();
+            self.$el.parent().parent().parent().find("." + field + "_cls").hide();
         });
     };
     // 初始化表头
@@ -117,16 +132,43 @@
         var self = this;
         var $thr = $('<tr></tr>');
         $.each(self.options.columns, function(i, column) {
-            var $th = null;
+            var $th;
+            column = $.extend({}, BootstrapTreeTable.COLUMN_DEFAULTS, column);
+            if(column.width){
+                column.width += (column.width.indexOf("%") == -1&&column.width.indexOf("px") == -1)?"px":"";
+            }
+            if ((!self.hasFixWidth) && column.width) {
+                self.hasFixWidth = column.width.indexOf("px") > -1 ? true : false;
+            }
+            self.options.columns[i]=column;
             // 判断有没有选择列
-            if (i == 0 && column.field == 'selectItem') {
+            // 选择列永远在左边第一列
+            if (column.checkbox || column.radio) {
                 self.hasSelectItem = true;
+                self.leftFrozenColumns.push(column);
+            }else{
+                if(column.fixed){
+                    if(column.fixed=="left"){
+                        self.leftFrozenColumns.push(column);
+                    }else if(column.fixed=="right"){
+                        self.rightFrozenColumns.push(column);
+                    }else{
+                        self.noFrozenColumns.push(column);
+                    }
+                }else{
+                    self.noFrozenColumns.push(column);
+                }
+            }
+        });
+        // 因有可能出现冻结列，所以这里合并列配置
+        var _columns = self.leftFrozenColumns.concat(self.noFrozenColumns).concat(self.rightFrozenColumns);
+        $.each(_columns, function(i, column) {
+            var $th;
+            // 判断有没有选择列
+            if (i == 0 && (column.checkbox || column.radio)) {
                 $th = $('<th style="width:36px"></th>');
             } else {
                 $th = $('<th style="' + ((column.width) ? ('width:' + column.width) : '') + '" class="' + column.field + '_cls"></th>');
-            }
-            if ((!self.isFixWidth) && column.width) {
-                self.isFixWidth = column.width.indexOf("px") > -1 ? true : false;
             }
             $th.text(column.title);
             $thr.append($th);
@@ -134,16 +176,26 @@
         var $thead = $('<thead class="treetable-thead"></thead>');
         $thead.append($thr);
         self.$el.append($thead);
+
+        var $headBox = $("<div class='treetable-fixed treetable-head-box'></div>");
+        var $topTable = $("<table id='"+self.$el.attr("id")+"_header'></table>");
+        $headBox.append($topTable);
+        self.$el.parent().before($headBox);
+        self.cloneTable(self.$el,$topTable,0,_columns.length-1);
+        self.$el.find('thead th').each(function(index, el) {
+            $(el).html("");
+        });
+        // header跟着滚动
+        self.$el.parent().scroll(function(){
+            var left=self.$el.parent().scrollLeft();//获取滚动的距离
+            self.$el.parent().parent().find("#"+self.$el.attr("id")+"_header").parent().css({"left":-left});
+        });
     };
     // 初始化表体
     BootstrapTreeTable.prototype.initBody = function() {
         var self = this;
         var $tbody = $('<tbody class="treetable-tbody"></tbody>');
         self.$el.append($tbody);
-        // 默认高度
-        if (self.options.height) {
-            $tbody.css("height", self.options.height);
-        }
     };
     // 初始化数据服务
     BootstrapTreeTable.prototype.initServer = function(parms) {
@@ -213,35 +265,147 @@
         self.registerExpanderEvent();
         self.registerRowClickEvent();
         self.initHiddenColumns();
-        // 动态设置表头宽度
-        self.autoTheadWidth()
+        self.autoReSize();
+        //self.frozen();
     };
-    // 动态设置表头宽度
-    BootstrapTreeTable.prototype.autoTheadWidth = function(initFlag) {
+    // 动态设置表头宽度及表体偏移量
+    BootstrapTreeTable.prototype.autoReSize = function(initFlag) {
         var self = this;
-        if (self.options.height > 0) {
-            var $thead = self.$el.find("thead");
-            var $tbody = self.$el.find("tbody");
-            var borderWidth = parseInt(self.$el.css("border-left-width")) + parseInt(self.$el.css("border-right-width"))
-
-            $thead.css("width", $tbody.children(":first").width());
-            if (initFlag) {
-                var resizeWaiter = false;
-                $(window).resize(function() {
-                    if (!resizeWaiter) {
-                        resizeWaiter = true;
-                        setTimeout(function() {
-                            if (!self.isFixWidth) {
-                                $tbody.css("width", self.$el.parent().width() - borderWidth);
-                            }
-                            $thead.css("width", $tbody.children(":first").width());
-                            resizeWaiter = false;
-                        }, 300);
+        // 原表的thead
+        var $el_thead = self.$el.find("thead");
+        // 新的header_table
+        var $header_table = self.$el.parent().parent().find("#"+self.$el.attr("id")+"_header");
+        var $thead = $header_table.find("thead");
+        var _width = $el_thead.children(":first").width();
+        if(self.hasScroll(true)){
+            // 表格宽度加上滚动条的宽度
+            $header_table.width(_width+self.getScrollWidth());
+            // 如果有滚动条就下个线吧，要不别扭。。。
+            self.$el.parent().css("border-bottom","1px solid #e7eaec");
+        }else{
+            $header_table.width("auto");
+            self.$el.parent().css("border-bottom","0");
+        }
+        $thead.css("width", _width);
+        // 设置表体偏移量
+        self.$el.parent().css("margin-top",$header_table.height());
+    };
+    // 固定设置
+    BootstrapTreeTable.prototype.frozen = function() {
+        var self = this;
+        var $table = self.$el;
+        var _tableId = $table.attr("id");
+        var $bodyBox = $table.parent();
+        var $tableBox = $bodyBox.parent();
+        var _noNum = self.noFrozenColumns.length;
+        var _leftNum = self.leftFrozenColumns.length;
+        var _rightNum = self.rightFrozenColumns.length;
+        $table.find("td").attr("noWrap","nowrap");
+        if ($table.width() > $tableBox.width()) {
+            if(self.leftFrozenColumns.length>0){
+                var $leftBox = $("<div class='treetable-fixed treetable-fixed-l'></div>");
+                var $_bodyBox = $("<div></div>");
+                self.mergeAttributes($bodyBox,$_bodyBox);
+                var $leftTable = $("<table></table>");
+                $leftBox.append($_bodyBox);
+                $_bodyBox.append($leftTable);
+                $tableBox.append($leftBox);
+                self.cloneTable(self.$el,$leftTable,0,_leftNum-1);
+                $leftBox.css("left",$tableBox.offset().left);
+                $leftBox.css("top",0);
+                $_bodyBox.height($_bodyBox.height()-self.getScrollWidth($bodyBox[0]));
+                var $_headBox = $("<div class='treetable-fixed treetable-head-box'></div>");
+                $leftBox.append($_headBox);
+                var $topTable = $("<table></table>");
+                $_headBox.append($topTable);
+                self.cloneTable($tableBox.find("#"+$table.attr("id")+"_header"),$topTable,0,_leftNum-1);
+            }
+            if(self.rightFrozenColumns.length>0){
+                var $rightBox = $("<div class='treetable-fixed treetable-fixed-r'></div>");
+                var $_bodyBox = $("<div></div>");
+                self.mergeAttributes($bodyBox,$_bodyBox);
+                var $rightTable = $("<table></table>");
+                $rightBox.append($_bodyBox);
+                $_bodyBox.append($rightTable);
+                $tableBox.append($rightBox);
+                self.cloneTable(self.$el,$rightTable,_noNum+_leftNum,_noNum+_leftNum+_rightNum-1);
+                $rightBox.css("right",self.getScrollWidth($bodyBox[0]));
+                $rightBox.css("top",0);
+                $_bodyBox.height($_bodyBox.height()-self.getScrollWidth($bodyBox[0]));
+                var $_headBox = $("<div class='treetable-fixed treetable-head-box'></div>");
+                $rightBox.append($_headBox);
+                var $topTable = $("<table></table>");
+                $_headBox.append($topTable);
+                self.cloneTable($tableBox.find("#"+$table.attr("id")+"_header"),$topTable,_noNum+_leftNum,_noNum+_leftNum+_rightNum-1);
+            }
+            $tableBox.find('.treetable-head-box').each(function(index, el) {
+                $(el).css({"top":0});
+            });
+        }
+        // 给table外面的div滚动事件绑定一个函数
+        $bodyBox.scroll(function(){
+            // 获取滚动的距离
+            var left=$bodyBox.scrollLeft();
+            // 获取滚动的距离
+            var top=$bodyBox.scrollTop();
+            $tableBox.find("#"+$table.attr("id")+"_header").parent().css({"left":-left});
+            $tableBox.find('.treetable-fixed .treetable-body-box').each(function(index, el) {
+                $(el).scrollTop(top);
+            });
+        });
+    };
+    // 克隆 从0开始(oSrcTable,iRowStart,iRowEnd,iColumnEnd)
+    BootstrapTreeTable.prototype.cloneTable = function($table,$newTable,iColumnStart,iColumnEnd) {
+        var self = this;
+        // 克隆 table 属性
+        self.mergeAttributes($table,$newTable);
+        if($table.find("thead")&&$table.find("thead").length>0){
+            var $newThead = $("<thead></thead>");
+            self.mergeAttributes($table.find("thead"),$newThead);
+            $table.find("thead tr").each(function(i,o){
+                var $newTr = $("<tr></tr>");
+                self.mergeAttributes($(o),$newTr);
+                var _width = 0;
+                $(o).find("th").each(function(index, el) {
+                    if(index >= iColumnStart && index <= iColumnEnd){
+                        $newTr.append($(el).clone(true));
+                        _width += $(el).width();
                     }
                 });
+                $newThead.append($newTr);
+            });
+            $newTable.append($newThead);
+        }
+        if($table.find("tbody")&&$table.find("tbody").length>0){
+            var $newTbody = $("<tbody></tbody>");
+            self.mergeAttributes($table.find("tbody"),$newTbody);
+            $table.find("tbody tr").each(function(i,o){
+                var $newTr = $("<tr></tr>");
+                self.mergeAttributes($(o),$newTr);
+                $(o).find("td").each(function(index, el) {
+                    if(index >= iColumnStart && index <= iColumnEnd){
+                        $newTr.append($(el).clone(true));
+                    }
+                });
+                $newTbody.append($newTr);
+            });
+            $newTable.append($newTbody);
+        }
+    };
+    // 合并属性
+    BootstrapTreeTable.prototype.mergeAttributes = function($s,$t) {
+        var attrs = $s.get(0).attributes;
+        var i = attrs.length - 1;
+        for(;i>=0;i--){
+            var name = attrs[i].name;
+            if(name.toLowerCase() === 'id' || attrs[i].value=="" || attrs[i].value==null ||attrs[i].value=="null"){
+                continue;
+            }
+            try{
+                $t.attr(name,attrs[i].value);
+            }catch(e){
             }
         }
-
     };
     // 缓存并格式化数据
     BootstrapTreeTable.prototype.formatData = function(data) {
@@ -315,10 +479,11 @@
             $tr.css("display", "none");
             _icon = self.options.expanderCollapsedClass;
         }
-        $.each(self.options.columns, function(index, column) {
-            // 判断有没有选择列
-            if (column.field == 'selectItem') {
-                self.hasSelectItem = true;
+        // 因有可能出现冻结列，所以这里合并列配置
+        var _columns = self.leftFrozenColumns.concat(self.noFrozenColumns).concat(self.rightFrozenColumns);
+        $.each(_columns, function(index, column) {
+            // 判断是不是选择列
+            if (column.checkbox || column.radio) {
                 var $td = $('<td style="text-align:center;width:36px"></td>');
                 if (column.radio) {
                     var $ipt = $('<input name="select_item" type="radio" value="' + item[self.options.id] + '"></input>');
@@ -370,6 +535,38 @@
             }
         });
         return $tr;
+    };
+    //是否有滚动条，true:垂直滚动条  false:水平滚动条
+    BootstrapTreeTable.prototype.hasScroll = function(flag){
+        var self = this;
+        var box = self.$el.parent()[0];
+        //offsetHeight=scrollHeight=clientHeight则没有滚动条
+        //垂直滚动条
+        if(flag&&box.scrollHeight>box.clientHeight){
+            return true;
+        }
+        //水平滚动条
+        if((!(flag))&&box.offsetHeight-box.clientHeight>0){
+            return true;
+        }
+        return false;
+    };
+    //获取滚动条宽度
+    BootstrapTreeTable.prototype.getScrollWidth = function(elem){
+        var width = 0;
+        if(elem){
+          width = elem.offsetWidth - elem.clientWidth;
+        } else {
+          elem = document.createElement('div');
+          elem.style.width = '100px';
+          elem.style.height = '100px';
+          elem.style.overflowY = 'scroll';
+
+          document.body.appendChild(elem);
+          width = elem.offsetWidth - elem.clientWidth;
+          document.body.removeChild(elem);
+        }
+        return width;
     };
     // 注册刷新按钮点击事件
     BootstrapTreeTable.prototype.registerRefreshBtnClickEvent = function(btn) {
@@ -580,29 +777,31 @@
         })
     };
     // 显示指定列
-    BootstrapTreeTable.prototype.showColumn = function(field, flag) {
+    BootstrapTreeTable.prototype.showColumn = function(field) {
         var self = this;
         var _index = $.inArray(field, self.hiddenColumns);
         if (_index > -1) {
             self.hiddenColumns.splice(_index, 1);
         }
-        self.$el.find("." + field + "_cls").show();
+        self.$el.parent().parent().parent().find("." + field + "_cls").show();
         //是否更新列选项状态
-        if (flag && self.options.showColumns) {
+        if (self.options.showColumns) {
             var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='" + field + "']")
             $input.prop("checked", 'checked');
         }
+        self.autoReSize();
     };
     // 隐藏指定列
     BootstrapTreeTable.prototype.hideColumn = function(field) {
         var self = this;
         self.hiddenColumns.push(field);
-        self.$el.find("." + field + "_cls").hide();
+       self.$el.parent().parent().parent().find("." + field + "_cls").hide();
         //是否更新列选项状态
         if (self.options.showColumns) {
             var $input = $(".bootstrap-tree-table .treetable-bars .columns label").find("input[value='" + field + "']")
             $input.prop("checked", '');
         }
+        self.autoReSize();
     };
     // 获取已选行
     BootstrapTreeTable.prototype.getSelections = function() {
@@ -640,7 +839,7 @@
     // 销毁
     BootstrapTreeTable.prototype.destroy = function() {
         var self = this;
-        var $container = self.$el.parent().parent();
+        var $container = self.$el.parent().parent().parent();
         self.$el.insertBefore($container);
         $(self.options.toolbar).insertBefore(self.$el);
         $container.remove();
@@ -690,12 +889,15 @@
         condensed: false, // 是否紧缩表格
         columns: [], // 列
         toolbar: null, // 顶部工具条
+        width: 0, // 表格宽度
         height: 0, // 表格高度
         showTitle: true, // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
         showColumns: true, // 是否显示内容列下拉框
         showRefresh: true, // 是否显示刷新按钮
-        expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
-        expanderCollapsedClass: 'glyphicon glyphicon-chevron-right', // 缩起的按钮的图标
+        expanderExpandedClass: 'bstt-icon bstt-chevron-down', // 展开的按钮的图标
+        expanderCollapsedClass: 'bstt-icon bstt-chevron-right', // 缩起的按钮的图标
+        toolRefreshClass: 'bstt-icon bstt-refresh', // 工具栏刷新按钮
+        toolColumnsClass: 'bstt-icon bstt-columns', // 工具栏列按钮
         onAll: function(data) {
             return false;
         },
@@ -717,6 +919,19 @@
         onDblClickRow: function(row, $element) {
             return false;
         }
+    };
+
+    BootstrapTreeTable.COLUMN_DEFAULTS = {
+        radio: false,
+        checkbox: false,
+        field: undefined,
+        title: undefined,
+        align: undefined, // left, right, center
+        valign: undefined, // top, middle, bottom
+        width: undefined,
+        visible: true,
+        fixed:undefined,//固定列。可选值有：left（固定在左）、right（固定在右）。一旦设定，对应的列将会被固定在左或右，不随滚动条而滚动。 注意：如果是固定在左，该列必须放在表头最前面；如果是固定在右，该列必须放在表头最后面。
+        formatter: undefined,
     };
 
     $.fn.bootstrapTreeTable = function(option) {
