@@ -1,6 +1,6 @@
 /**
  * bootstrap-treetable
- * v1.0.6-beta
+ * v1.0.7-beta
  * @author swifly
  * @url https://gitee.com/cyf783/bootstrap-treetable/
  */
