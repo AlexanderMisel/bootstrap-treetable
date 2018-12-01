@@ -6,6 +6,12 @@
 用法跟bootstrap-table差不多。
 
 
+### 2018-12-01 更新内容
+
+> * 修复点击checkbox无法选中bug
+> * 新增field列参数，目前仅支持左侧固定列，且固定列不可被隐藏(使用固定列时建议全都用固定列宽度)
+
+
 ### 2018-11-03 更新内容--- **不建议使用的版本** [该版本不稳定，有bug存在，建议使用上一版本。本人最近较忙，可能需要过段时间。。。]
 
 > * 重新实现固定thead
@@ -133,47 +139,75 @@ var treeTable = $('#demo').bootstrapTreeTable({
 #### 所有表格参数
 
 ```
-id: 'id',               // 选取记录返回的值,用于设置父子关系
-parentId: 'parentId',   // 用于设置父子关系
-rootIdValue: null,      // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
-data: null,             // 构造table的数据集合
-type: "GET",            // 请求数据的ajax类型
-url: null,              // 请求数据的ajax的url
-ajaxParams: {},         // 请求数据的ajax的data属性
-expandColumn: 0,        // 在哪一列上面显示展开按钮
-expandAll: false,       // 是否全部展开
-expandFirst: true,      // 是否默认第一级展开--expandAll为false时生效
-striped: false,         // 是否各行渐变色
-bordered: true,         // 是否显示边框
-hover: true,            // 是否鼠标悬停
-condensed: false,       // 是否紧缩表格
-columns: [],            // 列
-toolbar: null,          // 顶部工具条
-height: 0,              // 表格高度
-showTitle: true,        // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
-showColumns: true,      // 是否显示内容列下拉框
-showRefresh: true,      // 是否显示刷新按钮
-expanderExpandedClass: 'glyphicon glyphicon-chevron-down', // 展开的按钮的图标
-expanderCollapsedClass: 'glyphicon glyphicon-chevron-right' // 缩起的按钮的图标
+id: 'id',                                                   // 选取记录返回的值,用于设置父子关系
+parentId: 'parentId',                                       // 用于设置父子关系
+rootIdValue: null,                                          // 设置根节点id值----可指定根节点，默认为null,"",0,"0"
+data: null,                                                 // 构造table的数据集合
+type: "GET",                                                // 请求数据的ajax类型
+url: null,                                                  // 请求数据的ajax的url
+ajaxParams: {},                                             // 请求数据的ajax的data属性
+expandColumn: 0,                                            // 在哪一列上面显示展开按钮
+expandAll: false,                                           // 是否全部展开
+expandFirst: true,                                          // 是否默认第一级展开--expandAll为false时生效
+striped: false,                                             // 是否各行渐变色
+bordered: true,                                             // 是否显示边框
+hover: true,                                                // 是否鼠标悬停
+condensed: false,                                           // 是否紧缩表格
+columns: [],                                                // 列
+toolbar: null,                                              // 顶部工具条
+width: 0,                                                   // 表格宽度
+height: 0,                                                  // 表格高度
+showTitle: true,                                            // 是否采用title属性显示字段内容（被formatter格式化的字段不会显示）
+showColumns: true,                                          // 是否显示内容列下拉框
+showRefresh: true,                                          // 是否显示刷新按钮
+expanderExpandedClass: 'bstt-icon bstt-chevron-down',       // 展开的按钮的图标
+expanderCollapsedClass: 'bstt-icon bstt-chevron-right',     // 缩起的按钮的图标
+toolRefreshClass: 'bstt-icon bstt-refresh',                 // 工具栏刷新按钮
+toolColumnsClass: 'bstt-icon bstt-columns',                 // 工具栏列按钮
 ```
 
 #### 所有列参数
 
 ```
 
-title      String  undefined   表头要显示的文本
-field      String  undefined   要显示数据的字段名称，可以理解为json对象里的key
-checkbox   Boolean false   设置为True的时候 则显示一列checkbox组件，该列的宽度为固定宽度
-radio      Boolean false   设置为True的时候 则显示一列radio组件，该列的宽度为固定宽度
-align      String  undefined   设置单元格数据的左右对齐方式， 可选择的值有：’left’, ‘right’, ‘center’
-valign     String  undefined   设置单元格数据的上下对齐方式， 可选择的值有：’top’, ‘middle’, ‘bottom’
-width      Number {Pixels or Percentage}   undefined    设置单元格列宽度。可以使用’%’百分比的方式，也可以设置要显示的像素值
-visible    Boolean true    显示或隐藏该列， 默认显示， False为隐藏
-formatter  Function    undefined   单元格格式化函数，有三个参数：value： 该列的字段值；row： 这一行的数据对象；index： 行号，第几行，从0开始计算
-例子：formatter : function(value, row, index){ return value + row.id + index; }
+radio: false,           // 显示一列radio组件，该列的宽度为固定宽度
+checkbox: false,        // 显示一列checkbox组件，该列的宽度为固定宽度
+field: undefined,       // 要显示数据的字段名称，可以理解为json对象里的key
+title: undefined,       // 表头要显示的文本
+align: undefined,       // 设置单元格数据的左右对齐方式， 可选择的值有：’left’, ‘right’, ‘center’
+valign: undefined,      // 设置单元格数据的上下对齐方式， 可选择的值有：’top’, ‘middle’, ‘bottom’
+width: undefined,       // 设置单元格列宽度。可以使用’%’百分比的方式，也可以设置要显示的像素值
+visible: true,          // 显示或隐藏该列
+fixed:undefined,        //固定列。可选值有：left（固定在左）。一旦设定，对应的列将会被固定在左，不随滚动条而滚动。
+formatter: undefined,   // 单元格格式化函数，有三个参数：value： 该列的字段值；row： 这一行的数据对象；index： 行号，第几行，从0开始计算。例子：formatter : function(value, row, index){ return value + row.id + index; }
 
 ```
-#### 方法
+#### 所有方法
+```
+getSelections   // 获取选中行数据
+refresh         // 重新加载表格
+appendData      // 向表格里添加数据，如果添加数据id重复，将以最后一条为准
+toggleRow       // 切换行展开状态
+expandRow       // 展开行
+collapseRow     // 收起行
+expandAll       // 展开所有行
+collapseAll     // 收起所有行
+showColumn      // 显示列
+hideColumn      // 隐藏列
+destroy         // 销毁
+```
+#### 所有事件
+```
+onAll           // 所有事件都会执行
+onLoadSuccess   // 加载成功
+onLoadError     // 加载失败
+onClickCell     // 点击单元格
+onDblClickCell  // 双击单元格
+onClickRow      // 点击行
+onDblClickRow   // 双击行
+```
+
+#### 示例
 ```
 //刷新
 $('#demo').bootstrapTreeTable('refresh');
@@ -216,5 +250,8 @@ var data = [{
         "icon": "#"
     },{...}];
 $('#demo').bootstrapTreeTable('appendData',data);
+
 ```
+####更新示例请查看demo_*.html
+
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/0929/103601_e391544d_405607.png "TIM截图20180929103516.png")
