@@ -62,12 +62,7 @@
 }
 
 .bootstrap-tree-table .treetable-box .treetable-thead tr th {
-    border: 0;
     vertical-align: middle;
-}
-
-.bootstrap-tree-table .table-bordered .treetable-thead tr th {
-    border-left: 1px solid #e7eaec;
 }
 
 .bootstrap-tree-table .treetable-box .treetable-tbody {
@@ -97,19 +92,8 @@
 }
 
 .bootstrap-tree-table .treetable-box .treetable-tbody tr td {
-    border: 0;
-    border-bottom: 1px solid #e7eaec;
     overflow: hidden;
     vertical-align: middle;
-}
-
-.bootstrap-tree-table .table-bordered .treetable-tbody tr td {
-    border-left: 1px solid #e7eaec;
-}
-
-
-.bootstrap-tree-table .treetable-box .treetable-tbody :last-child td {
-    border-bottom: 0;
 }
 
 .bootstrap-tree-table .treetable-box .treetable-tbody tr .ellipsis {
@@ -136,15 +120,38 @@
 }
 .bootstrap-tree-table .treetable-box .treetable-head-box .treetable-table{
     border-bottom: 0;
-    border-bottom: 2px solid #e7eaec;
+    border-bottom: 2px solid #ddd;
 }
 .bootstrap-tree-table .treetable-box .treetable-body-box{
     overflow: auto;
-    margin-top: 36px
 }
 .bootstrap-tree-table .treetable-box .treetable-body-box .treetable-table .treetable-thead th{
     padding: 0;
 }
 .bootstrap-tree-table .treetable-box .treetable-fixed .treetable-body-box{
     overflow: hidden;
+}
+.bootstrap-tree-table .treetable-bordered{
+    border:1px solid #ddd;
+}
+.bootstrap-tree-table .treetable-box table thead tr th,
+.bootstrap-tree-table .treetable-box table thead tr td{
+    border: 0;
+}
+.bootstrap-tree-table .treetable-box table tbody tr th,
+.bootstrap-tree-table .treetable-box table tbody tr td{
+    border: 0;
+    border-bottom: 1px solid #ddd;
+}
+.bootstrap-tree-table .treetable-bordered table thead tr th,
+.bootstrap-tree-table .treetable-bordered table tbody tr th,
+.bootstrap-tree-table .treetable-bordered table thead tr td,
+.bootstrap-tree-table .treetable-bordered table tbody tr td{
+  border-right: 1px solid #ddd;
+}
+.bootstrap-tree-table .treetable-bordered table thead tr th:last-child,
+.bootstrap-tree-table .treetable-bordered table tbody tr th:last-child,
+.bootstrap-tree-table .treetable-bordered table thead tr td:last-child,
+.bootstrap-tree-table .treetable-bordered table tbody tr td:last-child{
+  border-right: 0;
 }

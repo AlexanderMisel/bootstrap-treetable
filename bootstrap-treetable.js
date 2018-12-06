@@ -1,6 +1,6 @@
 /**
  * bootstrap-treetable
- * v1.0.8-beta
+ * v1.0.9-beta
  * @author swifly
  * @url https://gitee.com/cyf783/bootstrap-treetable/
  */
@@ -99,7 +99,7 @@
             self.$el.addClass('table-striped');
         }
         if (self.options.bordered) {
-            self.$el.addClass('table-bordered');
+            $treetable.addClass('treetable-bordered');
         }
         if (self.options.condensed) {
             self.$el.addClass('table-condensed');
@@ -224,6 +224,9 @@
                 success: function(data, textStatus, jqXHR) {
                     self.renderTable(data);
                     self.trigger('load-success', data);
+                    $(window).resize(function() {
+                        self.autoReSize();
+                    });
                 },
                 error: function(res, textStatus) {
                     var _errorMsg = '<tr><td colspan="' + self.options.columns.length + '"><div style="display: block;text-align: center;">' + res.responseText + '</div></td></tr>'
@@ -235,6 +238,9 @@
             if(self.options.data){
                 self.renderTable(self.options.data);
                 self.trigger('load-success', self.options.data);
+                $(window).resize(function() {
+                    self.autoReSize();
+                });
             }else{
                 self.trigger('load-error');
             }
@@ -297,14 +303,14 @@
             // 表格宽度加上滚动条的宽度
             $header_box_table.width(_width+self.getScrollWidth());
             // 如果有滚动条就下个线吧，要不别扭。。。
-            self.$el.parent().css("border-bottom","1px solid #e7eaec");
+            // self.$el.parent().css("border-bottom","1px solid #e7eaec");
         }else{
             $header_box_table.width("auto");
             self.$el.parent().css("border-bottom","0");
         }
         $header_box_thead.css("width", _width);
         // 设置表体偏移量
-        self.$el.parent().css("margin-top",$header_box_table.height());
+        self.$el.parent().parent().find(".treetable-body-box").css("margin-top",$header_box_table.height());
         /* 这里暂时没法处理，既然想用固定列就自行设定宽度吧
         setTimeout(function(){
             var $left_header_box_table = self.$leftBox.find(".treetable-head-box").find("table");
@@ -340,42 +346,39 @@
         var _noNum = self.noFixedColumns.length;
         var _leftNum = self.leftFixedColumns.length;
         $table.find("td").attr("noWrap","nowrap");
-        // 如果内容不超外框就不需要固定列了
-        if ($table.width() > $tableBox.width()) {
-            if(self.leftFixedColumns.length>0){
-                // 创建固定列盒子-start
-                self.$leftBox = $("<div class='treetable-fixed treetable-fixed-l'></div>");
-                var $_bodyBox = $("<div></div>");
-                self.mergeAttributes($bodyBox,$_bodyBox);
-                $_bodyBox.addClass("treetable-fixed");
-                var $leftTable = $("<table></table>");
-                self.$leftBox.append($_bodyBox);
-                $_bodyBox.append($leftTable);
-                $tableBox.append(self.$leftBox);
-                self.cloneTable(self.$el,$leftTable,0,_leftNum-1);
-                self.$leftBox.css("left",$tableBox.offset().left);
-                self.$leftBox.css("top",0);
-                $_bodyBox.height($_bodyBox.height()-self.getScrollWidth($bodyBox[0])-2);//2border?
-                var $_headBox = $("<div class='treetable-fixed treetable-head-box'></div>");
-                self.$leftBox.append($_headBox);
-                var $topTable = $("<table></table>");
-                $_headBox.append($topTable);
-                self.cloneTable($tableBox.find("#"+$table.attr("id")+"_header"),$topTable,0,_leftNum-1);
-                $topTable.removeAttr('style');
-                $topTable.find("thead").removeAttr('style');
-                // 创建固定列盒子-end
-                // 给table外面的div滚动事件绑定一个函数
-                $bodyBox.scroll(function(){
-                    // 获取滚动的距离
-                    var left=$bodyBox.scrollLeft();
-                    // 获取滚动的距离
-                    var top=$bodyBox.scrollTop();
-                    $tableBox.find("#"+$table.attr("id")+"_header").parent().css({"left":-left});
-                    $tableBox.find('.treetable-fixed .treetable-body-box').each(function(index, el) {
-                        $(el).scrollTop(top);
-                    });
+        if(self.leftFixedColumns.length>0){
+            // 创建固定列盒子-start
+            self.$leftBox = $("<div class='treetable-fixed treetable-fixed-l'></div>");
+            var $_bodyBox = $("<div></div>");
+            self.mergeAttributes($bodyBox,$_bodyBox);
+            $_bodyBox.addClass("treetable-fixed");
+            var $leftTable = $("<table></table>");
+            self.$leftBox.append($_bodyBox);
+            $_bodyBox.append($leftTable);
+            $tableBox.append(self.$leftBox);
+            self.cloneTable(self.$el,$leftTable,0,_leftNum-1);
+            self.$leftBox.css("left",$tableBox.offset().left);
+            self.$leftBox.css("top",0);
+            $_bodyBox.height($_bodyBox.height()-self.getScrollWidth()-2);//2border?
+            var $_headBox = $("<div class='treetable-fixed treetable-head-box'></div>");
+            self.$leftBox.append($_headBox);
+            var $topTable = $("<table></table>");
+            $_headBox.append($topTable);
+            self.cloneTable($tableBox.find("#"+$table.attr("id")+"_header"),$topTable,0,_leftNum-1);
+            $topTable.removeAttr('style');
+            $topTable.find("thead").removeAttr('style');
+            // 创建固定列盒子-end
+            // 给table外面的div滚动事件绑定一个函数
+            $bodyBox.scroll(function(){
+                // 获取滚动的距离
+                var left=$bodyBox.scrollLeft();
+                // 获取滚动的距离
+                var top=$bodyBox.scrollTop();
+                $tableBox.find("#"+$table.attr("id")+"_header").parent().css({"left":-left});
+                $tableBox.find('.treetable-fixed .treetable-body-box').each(function(index, el) {
+                    $(el).scrollTop(top);
                 });
-            }
+            });
         }
     };
     // 克隆 从0开始(oSrcTable,iRowStart,iRowEnd,iColumnEnd)
@@ -709,7 +712,7 @@
                 self.toggleRow(dataid);
             }
         });
-        if(self.expandColumnIsFixed){
+        if(self.hasFixedColumn && self.expandColumnIsFixed){
             self.$leftBox.find(".treetable-body-box table tbody").find("tr").find(".treetable-expander").off('click').on('click', function() {
                 var _isExpanded = $(this).hasClass(self.options.expanderExpandedClass);
                 var _isCollapsed = $(this).hasClass(self.options.expanderCollapsedClass);
@@ -904,7 +907,7 @@
     // 展开所有的行
     BootstrapTreeTable.prototype.expandAll = function() {
         var self = this;
-        if(self.expandColumnIsFixed){
+        if(self.hasFixedColumn && self.expandColumnIsFixed){
             self.$leftBox.find("tbody").find("tr").find(".treetable-expander").each(function(i, n) {
                 var _isCollapsed = $(n).hasClass(self.options.expanderCollapsedClass);
                 if (_isCollapsed) {
@@ -927,7 +930,7 @@
     // 折叠所有的行
     BootstrapTreeTable.prototype.collapseAll = function() {
         var self = this;
-        if(self.expandColumnIsFixed){
+        if(self.hasFixedColumn && self.expandColumnIsFixed){
             self.$leftBox.find("tbody").find("tr").find(".treetable-expander").each(function(i, n) {
             var _isExpanded = $(n).hasClass(self.options.expanderExpandedClass);
             if (_isExpanded) {
