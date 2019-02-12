@@ -6,6 +6,10 @@
 用法跟bootstrap-table差不多。
 
 
+### 2019-2-12 更新内容
+
+> * 修复BootstrapTreeTable.prototype.refresh刷新传参问题
+
 ### 2018-12-06 更新内容
 
 > * 窗口大小改变后header自适应

@@ -1,6 +1,6 @@
 /**
  * bootstrap-treetable
- * v1.0.9-beta
+ * v1.0.10-beta
  * @author swifly
  * @url https://gitee.com/cyf783/bootstrap-treetable/
  */
@@ -16,7 +16,7 @@
         this.data_list = null; //用于缓存格式化后的数据-按父分组
         this.data_obj = null; //用于缓存格式化后的数据-按id存对象
         this.hiddenColumns = []; //用于存放被隐藏列的field
-        this.lastAjaxParams; //用户最后一次请求的参数
+        this.lastAjaxParams = null; //用户最后一次请求的参数
         this.hasSelectItem = false; // 是否有radio或checkbox
         this.leftFixedColumns = [];//左侧固定列集合
         this.noFixedColumns = [];//非固定列集合
@@ -27,7 +27,7 @@
         this.init();//初始化
     };
     // 初始化
-    BootstrapTreeTable.prototype.init = function() {
+    BootstrapTreeTable.prototype.init = function(parms) {
         // 初始化配置
         this.initOptions();
         // 初始化容器
@@ -39,7 +39,7 @@
         // 初始化表体
         this.initBody();
         // 初始化数据服务
-        this.initServer();
+        this.initServer(parms);
     };
     // 初始化配置
     BootstrapTreeTable.prototype.initOptions = function() {
@@ -727,11 +727,11 @@
     // 刷新数据
     BootstrapTreeTable.prototype.refresh = function(parms) {
         var self = this;
+        self.destroy();
         if (parms) {
             self.lastAjaxParams = parms;
         }
-        self.destroy();
-        self.init();
+        self.init(self.lastAjaxParams);
     };
     // 添加数据刷新表格
     BootstrapTreeTable.prototype.appendData = function(data) {
@@ -1030,7 +1030,7 @@
         self.noFixedColumns = [];
         self.data_list = null;
         self.data_obj = null;
-        self.lastAjaxParams;
+        self.lastAjaxParams = null;
         self.hasSelectItem = false;
         self.expandColumnIsFixed = false;
         self.hasFixedColumn = false;
