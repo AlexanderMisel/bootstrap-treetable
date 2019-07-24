@@ -79,7 +79,7 @@
         if(self.leftFixedColumns.length==1){
             self.noFixedColumns.unshift(self.leftFixedColumns[0])
             self.leftFixedColumns.pop();
-        }else{
+        }else if (self.leftFixedColumns.length >1) {
             self.hasFixedColumn = true;
         }
     };
