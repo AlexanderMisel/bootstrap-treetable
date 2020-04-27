@@ -1,5 +1,9 @@
 # bootstrap-treetable
 
+
+### 暂停维护，谢谢大家支持！
+ 
+
 #### 项目介绍
 这个东西最初出现在guns项目，基于jquery.treegrid.js实现的树。但在实际应用过程中这个方案数据量过大会有性能问题，遂抛掉了jquery.treegrid重新实现了相关功能。
 
