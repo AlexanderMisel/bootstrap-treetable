@@ -254,7 +254,7 @@
         if (!data || data.length <= 0) {
             var _empty = '<tr><td colspan="' + self.options.columns.length + '"><div style="display: block;text-align: center;">没有找到匹配的记录</div></td></tr>'
             $tbody.html(_empty);
-            self.$el.replaceWith(self.$el_);
+            self.$el.children("tbody").replaceWith($tbody);
             return;
         }
         // 缓存并格式化数据
